@@ -17,7 +17,7 @@ export default function TermsPage() {
                   Terms and Conditions
                </h1>
                <p className='mt-2 text-sm text-gray-600'>
-                  Last Updated: [Date]
+                  Last Updated: {new Date().toLocaleDateString()}
                </p>
             </div>
 
