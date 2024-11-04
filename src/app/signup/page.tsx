@@ -47,7 +47,6 @@ export default function SignUpPage() {
                      </SelectTrigger>
                      <SelectContent>
                         <SelectItem value='panama'>Panama</SelectItem>
-                        {/* Add more countries as needed */}
                      </SelectContent>
                   </Select>
                </div>
