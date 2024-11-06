@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,6 +16,53 @@ import {
 } from "@/components/ui/select";
 
 export default function SignUpPage() {
+   const [formData, setFormData] = useState({
+      name: "",
+      email: "",
+      country: "",
+      password: "",
+      terms: false,
+   });
+   const [error, setError] = useState("");
+   const router = useRouter();
+
+   const handleChange = (e: any) => {
+      const { name, value, type, checked } = e.target;
+      setFormData((prev) => ({
+         ...prev,
+         [name]: type === "checkbox" ? checked : value,
+      }));
+   };
+
+   const handleSubmit = async (e: any) => {
+      e.preventDefault();
+      setError("");
+
+      if (!formData.terms) {
+         setError("You must agree to the terms and conditions");
+         return;
+      }
+
+      try {
+         const response = await fetch("/api/signup", {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+         });
+
+         if (response.ok) {
+            router.push("/dashboard"); // Redirect to dashboard on success
+         } else {
+            const data = await response.json();
+            setError(data.message || "An error occurred during signup");
+         }
+      } catch (err) {
+         setError("An error occurred. Please try again.");
+      }
+   };
+
    return (
       <div className='min-h-screen bg-[#93E7FF] flex flex-col items-center justify-center p-4'>
          <div className='w-full max-w-md bg-white rounded-lg shadow-md py-12 px-8 space-y-8'>
@@ -28,20 +79,40 @@ export default function SignUpPage() {
                </h1>
             </div>
 
-            <form className='space-y-6'>
+            <form className='space-y-6' onSubmit={handleSubmit}>
                <div>
                   <Label htmlFor='name'>Name</Label>
-                  <Input id='name' type='text' required />
+                  <Input
+                     id='name'
+                     name='name'
+                     type='text'
+                     required
+                     value={formData.name}
+                     onChange={handleChange}
+                  />
                </div>
 
                <div>
                   <Label htmlFor='email'>Email</Label>
-                  <Input id='email' type='email' required />
+                  <Input
+                     id='email'
+                     name='email'
+                     type='email'
+                     required
+                     value={formData.email}
+                     onChange={handleChange}
+                  />
                </div>
 
                <div>
                   <Label htmlFor='country'>Country</Label>
-                  <Select>
+                  <Select
+                     name='country'
+                     value={formData.country}
+                     onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, country: value }))
+                     }
+                  >
                      <SelectTrigger>
                         <SelectValue placeholder='Select a country' />
                      </SelectTrigger>
@@ -53,15 +124,25 @@ export default function SignUpPage() {
 
                <div>
                   <Label htmlFor='password'>Password</Label>
-                  <Input id='password' type='password' required />
+                  <Input
+                     id='password'
+                     name='password'
+                     type='password'
+                     required
+                     value={formData.password}
+                     onChange={handleChange}
+                  />
                </div>
 
                <div className='flex items-center'>
                   <input
                      id='terms'
+                     name='terms'
                      type='checkbox'
                      className='h-4 w-4 text-[#93E7FF] focus:ring-[#93E7FF] border-gray-300 rounded'
                      required
+                     checked={formData.terms}
+                     onChange={handleChange}
                   />
                   <label
                      htmlFor='terms'
@@ -83,6 +164,8 @@ export default function SignUpPage() {
                      </Link>
                   </label>
                </div>
+
+               {error && <p className='text-red-500 text-sm'>{error}</p>}
 
                <Button
                   type='submit'
