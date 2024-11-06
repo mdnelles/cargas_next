@@ -1,19 +1,14 @@
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/jwt";
-import { redirect } from "next/navigation";
+import DashboardGrid from "./dashboard-grid";
+import TopNav from "./top-nav";
 
-export default async function DashboardPage() {
-   const cookieStore = await cookies();
-   const token = cookieStore.get("auth_token");
-
-   if (!token || !verifyToken(token.value)) {
-      redirect("/signin");
-   }
-
+export default function DashboardPage() {
    return (
-      <div className='container mx-auto p-4'>
-         <h1 className='text-2xl font-bold mb-4'>Dashboard</h1>
-         <p>Welcome to your dashboard!</p>
+      <div className='min-h-screen bg-gray-100'>
+         <TopNav />
+         <main className='container mx-auto px-4 py-8'>
+            <h1 className='text-3xl font-bold mb-6'>Dashboard</h1>
+            <DashboardGrid />
+         </main>
       </div>
    );
 }
