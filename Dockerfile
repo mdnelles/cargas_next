@@ -11,11 +11,16 @@ RUN npm install --legacy-peer-deps
 # Copy the rest of the project files
 COPY . .
 
+# Ensure the public folder is copied
+COPY public ./public
+
+COPY next.config.js .
+
 # Build the Next.js app
 RUN npm run build
 
-# Expose port 3000 and start the application
-EXPOSE 3000
+# Expose port 3010 and start the application
+EXPOSE 3010
 CMD ["npm", "start"]
 
 
@@ -26,20 +31,18 @@ CMD ["npm", "start"]
 # docker volume prune                    (remove all unused volumes)
 # docker builder prune                   (remove all unused builders)
 # docker buildx create --use            (not needed if already created)
-# docker buildx build --platform linux/amd64 -t mdnelles/cargas.:latest --load .
+# docker buildx build --platform linux/amd64 -t mdnelles/cargas:latest --load .
 # docker images                         (to get the <IMAGE_ID>)
-# docker tag <IMAGE_ID> mdnelles/cargas.:latest
-# docker push mdnelles/cargas.:latest
+# docker tag <IMAGE_ID> mdnelles/cargas:latest
+# docker push mdnelles/cargas:latest
 
 
 # SERVER:
-# sudo docker pull mdnelles/cargas.:latest
+# sudo docker pull mdnelles/cargas:latest
 # sudo docker ps -a (to get the container id)
 
-# sudo docker run -d -p 3000:3000 -e PORT=3000 --restart unless-stopped mdnelles/cargas.
+# sudo docker run -d -p 3010:3010 -e PORT=3010 --restart unless-stopped mdnelles/cargas
 
-# Production on port 3002
-# sudo docker run -d -p 3002:3001 -e NODE_ENV=production --restart unless-stopped mdnelles/cargas.
 
 # STOP CONTAINER:
 # sudo docker ps (to get the container id)
