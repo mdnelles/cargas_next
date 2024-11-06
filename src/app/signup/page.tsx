@@ -14,6 +14,7 @@ import {
    SelectTrigger,
    SelectValue,
 } from "@/components/ui/select";
+import Loading from "@/components/loading";
 
 export default function SignUpPage() {
    const [formData, setFormData] = useState({
@@ -24,9 +25,10 @@ export default function SignUpPage() {
       terms: false,
    });
    const [error, setError] = useState("");
+   const [isLoading, setIsLoading] = useState(false);
    const router = useRouter();
 
-   const handleChange = (e: any) => {
+   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value, type, checked } = e.target;
       setFormData((prev) => ({
          ...prev,
@@ -34,12 +36,14 @@ export default function SignUpPage() {
       }));
    };
 
-   const handleSubmit = async (e: any) => {
+   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setError("");
+      setIsLoading(true);
 
       if (!formData.terms) {
          setError("You must agree to the terms and conditions");
+         setIsLoading(false);
          return;
       }
 
@@ -60,6 +64,8 @@ export default function SignUpPage() {
          }
       } catch (err) {
          setError("An error occurred. Please try again.");
+      } finally {
+         setIsLoading(false);
       }
    };
 
@@ -170,8 +176,9 @@ export default function SignUpPage() {
                <Button
                   type='submit'
                   className='w-full bg-[#93E7FF] hover:bg-[#7DCEE6] text-[#333]'
+                  disabled={isLoading}
                >
-                  Register
+                  {isLoading ? <Loading text='Registering...' /> : "Register"}
                </Button>
             </form>
 
