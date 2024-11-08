@@ -10,7 +10,7 @@ export default function TopNav() {
    const handleLogout = async () => {
       const response = await fetch("/api/logout", { method: "POST" });
       if (response.ok) {
-         router.push("/login");
+         router.push("/");
       }
    };
 

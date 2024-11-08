@@ -14,7 +14,7 @@ COPY . .
 # Ensure the public folder is copied
 COPY public ./public
 
-COPY next.config.js .
+COPY next.config.ts .
 
 # Build the Next.js app
 RUN npm run build
@@ -40,7 +40,7 @@ CMD ["npm", "start"]
 # SERVER:
 # sudo docker pull mdnelles/cargas:latest
 # sudo docker ps -a (to get the container id)
-
+# sudo docker stop 0d0c97c8d57f (or whatever the container id is)
 # sudo docker run -d -p 3010:3010 -e PORT=3010 --restart unless-stopped mdnelles/cargas
 
 

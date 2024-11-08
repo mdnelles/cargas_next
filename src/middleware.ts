@@ -1,3 +1,4 @@
+// src/middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/jwt";
@@ -10,7 +11,16 @@ export function middleware(request: NextRequest) {
    const token = request.cookies.get("auth_token")?.value;
 
    // Define public paths that don't require authentication
-   const isPublicPath = path === "/signin" || path === "/signup";
+   const publicPaths = [
+      "/forgot-password",
+      "/privacy",
+      "/reset-password",
+      "/signin",
+      "/signup",
+      "/terms",
+   ]; // Add more public paths as needed
+   const isPublicPath =
+      publicPaths.includes(path) || !path.startsWith("/dashboard");
 
    // If we have a token and user is trying to access login/signup, redirect to dashboard
    if (token && isPublicPath) {
