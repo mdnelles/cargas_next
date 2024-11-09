@@ -3,16 +3,46 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home, LogOut, UserCog } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function TopNav() {
    const router = useRouter();
+   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-   const handleLogout = async () => {
-      const response = await fetch("/api/logout", { method: "POST" });
-      if (response.ok) {
-         router.push("/");
+   useEffect(() => {
+      // Check authentication status when the component mounts
+      checkAuthStatus();
+   }, []);
+
+   const checkAuthStatus = async () => {
+      try {
+         const response = await fetch("/api/check-auth");
+         if (response.ok) {
+            setIsAuthenticated(true);
+         } else {
+            setIsAuthenticated(false);
+         }
+      } catch (error) {
+         console.error("Error checking auth status:", error);
+         setIsAuthenticated(false);
       }
    };
+
+   const handleLogout = async () => {
+      try {
+         const response = await fetch("/api/logout", { method: "POST" });
+         if (response.ok) {
+            setIsAuthenticated(false);
+            router.push("/signin");
+         }
+      } catch (error) {
+         console.error("Error logging out:", error);
+      }
+   };
+
+   if (!isAuthenticated) {
+      return null; // Don't render the nav if not authenticated
+   }
 
    return (
       <nav className='bg-[#93E7FF] shadow'>
