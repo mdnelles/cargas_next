@@ -33,7 +33,7 @@ export default function TopNav() {
          const response = await fetch("/api/logout", { method: "POST" });
          if (response.ok) {
             setIsAuthenticated(false);
-            router.push("/signin");
+            router.push("/");
          }
       } catch (error) {
          console.error("Error logging out:", error);
