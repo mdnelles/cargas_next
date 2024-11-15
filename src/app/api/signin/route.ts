@@ -8,6 +8,8 @@ interface User extends RowDataPacket {
    id: number;
    email: string;
    password: string;
+   country: string;
+   name: string;
 }
 
 export async function POST(req: Request) {
@@ -35,10 +37,23 @@ export async function POST(req: Request) {
          );
       }
 
-      const token = createToken({ userId: user.id, email: user.email });
+      const token = createToken({
+         userId: user.id,
+         email: user.email,
+         name: user.name,
+         country: user.country,
+      });
 
       const response = NextResponse.json(
-         { message: "Sign in successful" },
+         {
+            message: "Sign in successful",
+            user: {
+               id: user.id,
+               email: user.email,
+               name: user.name,
+               country: user.country,
+            },
+         },
          { status: 200 }
       );
       response.cookies.set("auth_token", token, {

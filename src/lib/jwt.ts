@@ -2,21 +2,20 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
-interface JWTPayload {
+// Define a custom payload type
+interface CustomJwtPayload extends jwt.JwtPayload {
    userId: number;
    email: string;
-   iat?: number;
-   exp?: number;
+   name: string;
+   country: string;
 }
 
-export function verifyToken(token: string): JWTPayload | null {
-   try {
-      return jwt.verify(token, JWT_SECRET) as JWTPayload;
-   } catch (error) {
-      return null;
-   }
-}
-
-export function createToken(payload: Omit<JWTPayload, "iat" | "exp">) {
+export function createToken(
+   payload: Omit<CustomJwtPayload, "iat" | "exp">
+): string {
    return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
+}
+
+export function verifyToken(token: string): CustomJwtPayload {
+   return jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
 }

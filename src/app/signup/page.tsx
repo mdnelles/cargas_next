@@ -123,7 +123,7 @@ export default function SignUpPage() {
                         <SelectValue placeholder='Select a country' />
                      </SelectTrigger>
                      <SelectContent>
-                        <SelectItem value='panama'>Panama</SelectItem>
+                        <SelectItem value='Panama'>Panama</SelectItem>
                      </SelectContent>
                   </Select>
                </div>

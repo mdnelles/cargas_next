@@ -1,7 +1,6 @@
-// src/app/dashboard/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,16 +14,60 @@ import {
 } from "@/components/ui/select";
 import DashboardTemplate from "../dashboard-template";
 
-export default function DashboardPage() {
-   const [name, setName] = useState("John Doe");
-   const [email, setEmail] = useState("john@example.com");
-   const [country, setCountry] = useState("Panama");
+interface UserInfo {
+   name: string;
+   email: string;
+   country: string;
+}
 
-   const handleSave = () => {
-      // Here you would typically send this data to your backend
-      console.log("Saving profile:", { name, email, country });
-      // You could also show a success message to the user here
+async function getUserInfo(): Promise<UserInfo> {
+   const response = await fetch("/api/user");
+   if (!response.ok) {
+      throw new Error("Failed to fetch user info");
+   }
+   return response.json();
+}
+
+export default function DashboardPage() {
+   const [name, setName] = useState("");
+   const [email, setEmail] = useState("");
+   const [country, setCountry] = useState("");
+
+   useEffect(() => {
+      getUserInfo()
+         .then((userInfo) => {
+            setName(userInfo.name);
+            setEmail(userInfo.email);
+            setCountry(userInfo.country);
+         })
+         .catch((error) => {
+            console.error("Error fetching user info:", error);
+            // Handle error (e.g., redirect to login page)
+         });
+   }, []);
+
+   const handleSave = async () => {
+      try {
+         const response = await fetch("/api/user", {
+            method: "PUT",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email, country }),
+         });
+
+         if (!response.ok) {
+            throw new Error("Failed to update profile");
+         }
+
+         // Show success message
+         alert("Profile updated successfully");
+      } catch (error) {
+         console.error("Error updating profile:", error);
+         alert("Failed to update profile. Please try again.");
+      }
    };
+
    return (
       <DashboardTemplate title='Edit Profile'>
          <Card className='max-w-md mx-auto'>
