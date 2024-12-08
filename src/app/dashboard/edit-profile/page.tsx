@@ -13,60 +13,70 @@ import {
    SelectValue,
 } from "@/components/ui/select";
 import DashboardTemplate from "../dashboard-template";
+import { useRouter } from "next/navigation";
 
 interface UserInfo {
+   id: string;
    name: string;
    email: string;
    country: string;
 }
 
-async function getUserInfo(): Promise<UserInfo> {
-   const response = await fetch("/api/user");
+async function getUserInfo(id: string): Promise<UserInfo> {
+   const response = await fetch(`/api/edit-user?id=${id}`);
    if (!response.ok) {
       throw new Error("Failed to fetch user info");
    }
    return response.json();
 }
 
-export default function DashboardPage() {
-   const [name, setName] = useState("");
-   const [email, setEmail] = useState("");
-   const [country, setCountry] = useState("");
+export default function EditProfilePage() {
+   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+   const [isLoading, setIsLoading] = useState(false);
+   const router = useRouter();
 
    useEffect(() => {
-      getUserInfo()
-         .then((userInfo) => {
-            setName(userInfo.name);
-            setEmail(userInfo.email);
-            setCountry(userInfo.country);
+      const userId = "1"; // Replace this with the actual user ID, e.g., from authentication context
+      getUserInfo(userId)
+         .then((info) => {
+            setUserInfo(info);
          })
          .catch((error) => {
             console.error("Error fetching user info:", error);
-            // Handle error (e.g., redirect to login page)
          });
    }, []);
 
-   const handleSave = async () => {
+   const handleSave = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!userInfo) return;
+
+      setIsLoading(true);
       try {
-         const response = await fetch("/api/user", {
+         const response = await fetch("/api/edit-user", {
             method: "PUT",
             headers: {
                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ name, email, country }),
+            body: JSON.stringify(userInfo),
          });
 
          if (!response.ok) {
             throw new Error("Failed to update profile");
          }
 
-         // Show success message
          alert("Profile updated successfully");
+         router.refresh();
       } catch (error) {
          console.error("Error updating profile:", error);
          alert("Failed to update profile. Please try again.");
+      } finally {
+         setIsLoading(false);
       }
    };
+
+   if (!userInfo) {
+      return <div>Loading...</div>;
+   }
 
    return (
       <DashboardTemplate title='Edit Profile'>
@@ -75,19 +85,15 @@ export default function DashboardPage() {
                <CardTitle>Change User Profile</CardTitle>
             </CardHeader>
             <CardContent>
-               <form
-                  onSubmit={(e) => {
-                     e.preventDefault();
-                     handleSave();
-                  }}
-                  className='space-y-4'
-               >
+               <form onSubmit={handleSave} className='space-y-4'>
                   <div className='space-y-2'>
                      <Label htmlFor='name'>Name</Label>
                      <Input
                         id='name'
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={userInfo.name}
+                        onChange={(e) =>
+                           setUserInfo({ ...userInfo, name: e.target.value })
+                        }
                         placeholder='Enter your name'
                      />
                   </div>
@@ -96,21 +102,38 @@ export default function DashboardPage() {
                      <Input
                         id='email'
                         type='email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={userInfo.email}
+                        onChange={(e) =>
+                           setUserInfo({ ...userInfo, email: e.target.value })
+                        }
                         placeholder='Enter your email'
                      />
                   </div>
                   <div className='space-y-2'>
                      <Label htmlFor='country'>Country</Label>
-                     <Select value={country} onValueChange={setCountry}>
+                     <Select
+                        value={userInfo.country}
+                        onValueChange={(value) =>
+                           setUserInfo({ ...userInfo, country: value })
+                        }
+                     >
                         <SelectTrigger id='country'>
                            <SelectValue placeholder='Select a country' />
                         </SelectTrigger>
                         <SelectContent>
+                           <SelectItem value='Belize'>Belize</SelectItem>
+                           <SelectItem value='Canada'>Canada</SelectItem>
+                           <SelectItem value='Costa Rica'>
+                              Costa Rica
+                           </SelectItem>
+                           <SelectItem value='El Salvador'>
+                              El Salvador
+                           </SelectItem>
+                           <SelectItem value='Guatemala'>Guatemala</SelectItem>
+                           <SelectItem value='Honduras'>Honduras</SelectItem>
+                           <SelectItem value='Nicaragua'>Nicaragua</SelectItem>
                            <SelectItem value='Panama'>Panama</SelectItem>
                            <SelectItem value='USA'>USA</SelectItem>
-                           <SelectItem value='Canada'>Canada</SelectItem>
                            {/* Add more countries as needed */}
                         </SelectContent>
                      </Select>
@@ -118,8 +141,9 @@ export default function DashboardPage() {
                   <Button
                      type='submit'
                      className='w-full bg-[#93E7FF] hover:bg-[#7DCEE6] text-[#333]'
+                     disabled={isLoading}
                   >
-                     Save
+                     {isLoading ? "Saving..." : "Save"}
                   </Button>
                </form>
             </CardContent>
