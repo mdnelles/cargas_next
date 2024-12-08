@@ -34,6 +34,8 @@ export default function TopNav() {
          const response = await fetch("/api/logout", { method: "POST" });
          if (response.ok) {
             setIsAuthenticated(false);
+            // remove all items from local storage
+            localStorage.clear();
             router.push("/");
          }
       } catch (error) {

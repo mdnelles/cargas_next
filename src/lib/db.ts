@@ -1,4 +1,4 @@
-// src/lib/db.ts
+import { Sequelize } from "sequelize";
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 
@@ -14,26 +14,21 @@ const pool = mysql.createPool({
    database: process.env.DB_NAME,
 });
 
-async function testConnection() {
-   let connection: mysql.PoolConnection | undefined;
-   try {
-      connection = await pool.getConnection();
-      console.log("Successfully connected to the database");
+// Create a Sequelize instance using the pool
+const sequelize = new Sequelize({
+   dialect: "mysql",
+   dialectModule: mysql,
+   host: process.env.DB_HOST,
+   port: Number(process.env.DB_PORT),
+   username: process.env.DB_USER,
+   password: process.env.DB_PASSWORD,
+   database: process.env.DB_NAME,
+   pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+   },
+});
 
-      const [rows] = await connection.query<mysql.RowDataPacket[]>(
-         "SELECT NOW() as now"
-      );
-      console.log("Current time from database:", rows[0]?.now);
-   } catch (err) {
-      console.error("Error connecting to the database", err);
-   } finally {
-      if (connection) {
-         connection.release();
-      }
-   }
-}
-
-// NODE_OPTIONS='--loader ts-node/esm' node src/lib/db.ts
-// testConnection();
-
-export default pool;
+export { sequelize, pool };

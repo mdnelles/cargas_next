@@ -1,5 +1,6 @@
+// src/app/api/edit-user/route.ts
 import { NextResponse } from "next/server";
-import pool from "@/lib/db";
+import { pool } from "@/lib/db";
 import { RowDataPacket, ResultSetHeader } from "mysql2";
 
 export async function GET(request: Request) {
