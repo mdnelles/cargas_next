@@ -12,6 +12,7 @@ class FuelUp extends Model<
    InferCreationAttributes<FuelUp>
 > {
    declare id: CreationOptional<number>;
+   declare user_id: CreationOptional<number>;
    declare odometer: number;
    declare previousOdometer: number | null;
    declare price: number;
@@ -28,6 +29,11 @@ class FuelUp extends Model<
 FuelUp.init(
    {
       id: {
+         type: DataTypes.INTEGER,
+         primaryKey: true,
+         autoIncrement: true,
+      },
+      user_id: {
          type: DataTypes.INTEGER,
          primaryKey: true,
          autoIncrement: true,

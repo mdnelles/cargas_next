@@ -6,21 +6,7 @@ import {
    DialogDescription,
 } from "@/components/ui/dialog";
 import { parseNumber } from "@/lib/utils";
-
-interface FuelUp {
-   id: number;
-   odometer: number;
-   previousOdometer: number | null;
-   price: number;
-   volume: number;
-   totalCost: number;
-   isPartialFuelUp: boolean;
-   isMissedFuelUp: boolean;
-   vehicleId: number;
-   dateTime: string;
-   paymentType: string | null;
-   kilometersAdded: number | null;
-}
+import { FuelUp } from "@/types/fuelUp";
 
 interface FuelUpDetailsDialogProps {
    fuelUp: FuelUp;
@@ -45,7 +31,7 @@ export function FuelUpDetailsDialog({
             <div className='grid grid-cols-2 gap-4'>
                <div>
                   <strong>Date:</strong>{" "}
-                  {new Date(fuelUp.dateTime).toLocaleString()}
+                  {new Date(fuelUp.date_time).toLocaleString()}
                </div>
                <div>
                   <strong>Odometer:</strong>{" "}
@@ -67,7 +53,7 @@ export function FuelUpDetailsDialog({
                </div>
                <div>
                   <strong>Total Cost:</strong> $
-                  {parseNumber(fuelUp.totalCost).toFixed(2)}
+                  {parseNumber(fuelUp.total_cost).toFixed(2)}
                </div>
                <div>
                   <strong>Partial Fuel-Up:</strong>{" "}
@@ -78,15 +64,15 @@ export function FuelUpDetailsDialog({
                   {fuelUp.isMissedFuelUp ? "Yes" : "No"}
                </div>
                <div>
-                  <strong>Vehicle ID:</strong> {fuelUp.vehicleId}
+                  <strong>Vehicle ID:</strong> {fuelUp.vehicle}
                </div>
                <div>
                   <strong>Payment Type:</strong> {fuelUp.paymentType || "N/A"}
                </div>
                <div>
                   <strong>Kilometers Added:</strong>{" "}
-                  {fuelUp.kilometersAdded
-                     ? parseNumber(fuelUp.kilometersAdded).toFixed(1)
+                  {fuelUp.kilometers
+                     ? parseNumber(fuelUp.kilometers).toFixed(1)
                      : "N/A"}
                </div>
             </div>

@@ -10,6 +10,7 @@ export default function SignInPage() {
 
    useEffect(() => {
       const checkAuth = async () => {
+         console.log("Checking auth status...2");
          const response = await fetch("/api/check-auth");
          if (response.ok) {
             router.push("/dashboard");

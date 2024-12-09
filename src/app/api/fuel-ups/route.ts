@@ -1,9 +1,12 @@
+// src/app/api/fuel-ups/route.ts
 import { NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { RowDataPacket, OkPacket } from "mysql2";
+import { verifyToken } from "@/lib/jwt";
 
 interface FuelUp extends RowDataPacket {
    id: number;
+   user_id: number;
    odometer: number;
    price: number;
    volume: number;
@@ -15,11 +18,37 @@ interface FuelUp extends RowDataPacket {
    // Add any other fields that are in your fuel_up_records table
 }
 
-export async function GET() {
+export async function GET(req: Request) {
    try {
+      // Get the Authorization header
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+         return NextResponse.json(
+            { error: "Authorization header missing or invalid" },
+            { status: 401 }
+         );
+      }
+
+      // Extract the token
+      const token = authHeader.split(" ")[1];
+
+      // Verify and decode the token
+      const decoded = verifyToken(token);
+      if (!decoded || typeof decoded !== "object" || !decoded.userId) {
+         return NextResponse.json(
+            { error: "Invalid or expired token" },
+            { status: 401 }
+         );
+      }
+
+      const userId = decoded.userId;
+
+      // Fetch records for the user
       const [rows] = await pool.query<FuelUp[]>(
-         "SELECT * FROM fuel_up_records"
+         "SELECT * FROM fuel_up_records WHERE user_id = ?",
+         [userId]
       );
+
       return NextResponse.json(rows);
    } catch (error) {
       console.error("Failed to fetch fuel-ups:", error);

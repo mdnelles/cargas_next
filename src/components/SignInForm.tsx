@@ -48,6 +48,10 @@ export default function SignInPage() {
          });
 
          if (response.ok) {
+            const data = await response.json();
+
+            // Store user info in localStorage
+            localStorage.setItem("user", JSON.stringify(data.user));
             router.push("/dashboard");
          } else {
             const data = await response.json();

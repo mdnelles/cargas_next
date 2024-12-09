@@ -16,6 +16,7 @@ export default function TopNav() {
    }, []);
 
    const checkAuthStatus = async () => {
+      console.log("Checking auth status...1");
       try {
          const response = await fetch("/api/check-auth");
          if (response.ok) {
