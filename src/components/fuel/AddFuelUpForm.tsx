@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { parseNumber } from "@/lib/utils";
 import { FuelUpDetailsDialog } from "./FuelUpDetailsDialog";
 import { FuelUp } from "@/types/fuelUp";
+import { AddFuelUpForm } from "./AddFuelUpForm"; // Import AddFuelUpForm
 
 interface FuelUpRecordsTableProps {
    initialFuelUps: FuelUp[];
@@ -37,25 +38,25 @@ export function FuelUpRecordsTable({
 
    const handleDelete = async (id: number) => {
       if (window.confirm("Are you sure you want to delete this record?")) {
-         try {
-            setIsLoading(true);
-            const response = await fetch(`/api/fuel-ups/${id}`, {
-               method: "DELETE",
-            });
-            if (!response.ok) {
-               throw new Error("Failed to delete fuel-up");
-            }
-            // check to make sure fuelUps is an array
-            if (!Array.isArray(fuelUps)) {
-               throw new Error("FuelUps is not an array");
-            }
-            setFuelUps(fuelUps.filter((fuelUp) => fuelUp.id !== id));
-         } catch (err) {
-            console.error("Error deleting fuel-up:", err);
-            setError("Failed to delete the record. Please try again.");
-         } finally {
-            setIsLoading(false);
-         }
+         // try {
+         //    setIsLoading(true);
+         //    const response = await fetch(`/api/fuel-ups/${id}`, {
+         //       method: "DELETE",
+         //    });
+         //    if (!response.ok) {
+         //       throw new Error("Failed to delete fuel-up");
+         //    }
+         //    // check to make sure fuelUps is an array
+         //    if (!Array.isArray(fuelUps)) {
+         //       throw new Error("FuelUps is not an array");
+         //    }
+         //    setFuelUps(fuelUps.filter((fuelUp) => fuelUp.id !== id));
+         // } catch (err) {
+         //    console.error("Error deleting fuel-up:", err);
+         //    setError("Failed to delete the record. Please try again.");
+         // } finally {
+         //    setIsLoading(false);
+         // }
       }
    };
 
@@ -69,6 +70,7 @@ export function FuelUpRecordsTable({
 
    return (
       <>
+         <AddFuelUpForm onAddFuelUp={handleAddFuelUp} />{" "}
          {/* AddFuelUpForm component */}
          {isLoading ? (
             <LoadingSkeleton />
