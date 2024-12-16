@@ -78,3 +78,64 @@ export async function POST(request: Request) {
       );
    }
 }
+
+export async function DELETE(request: Request) {
+   try {
+      // Get the Authorization header
+      const authHeader = request.headers.get("Authorization");
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+         return NextResponse.json(
+            { error: "Authorization header missing or invalid" },
+            { status: 401 }
+         );
+      }
+
+      // Extract the token
+      const token = authHeader.split(" ")[1];
+
+      // Verify and decode the token
+      const decoded = verifyToken(token);
+      if (!decoded || typeof decoded !== "object" || !decoded.userId) {
+         return NextResponse.json(
+            { error: "Invalid or expired token" },
+            { status: 401 }
+         );
+      }
+
+      const userId = decoded.userId;
+
+      // Get the fuel-up ID from the URL
+      const url = new URL(request.url);
+      const id = url.searchParams.get("id");
+
+      if (!id) {
+         return NextResponse.json(
+            { error: "Fuel-up ID is required" },
+            { status: 400 }
+         );
+      }
+
+      // Delete the fuel-up record
+      const [result] = await pool.query<OkPacket>(
+         "DELETE FROM fuel_up_records WHERE id = ? AND user_id = ?",
+         [id, userId]
+      );
+
+      if (result.affectedRows === 0) {
+         return NextResponse.json(
+            {
+               error: "Fuel-up not found or you don't have permission to delete it",
+            },
+            { status: 404 }
+         );
+      }
+
+      return NextResponse.json({ message: "Fuel-up deleted successfully" });
+   } catch (error) {
+      console.error("Failed to delete fuel-up:", error);
+      return NextResponse.json(
+         { error: "Failed to delete fuel-up" },
+         { status: 500 }
+      );
+   }
+}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
-import pool from "@/lib/db";
+import { pool } from "@/lib/db";
 import { RowDataPacket } from "mysql2/promise";
 
 export async function POST(request: Request) {

@@ -7,6 +7,7 @@ import DashboardTemplate from "../dashboard-template";
 import { getFuelUps } from "@/lib/api";
 import { useRef, useState } from "react";
 import { FuelUp } from "@/types/fuelUp";
+import Loading from "@/components/loading";
 
 export default function FuelUpClient() {
    // get the token from the localStorage user object
@@ -23,7 +24,7 @@ export default function FuelUpClient() {
    return (
       <DashboardTemplate title='Fuel Up Records'>
          {inital.current ? (
-            <p>Loading...</p>
+            <Loading />
          ) : (
             <FuelUpRecordsTable initialFuelUps={initialFuelUps} />
          )}
