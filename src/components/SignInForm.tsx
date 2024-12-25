@@ -52,6 +52,8 @@ export default function SignInPage() {
 
             // Store user info in localStorage
             localStorage.setItem("user", JSON.stringify(data.user));
+
+            //
             router.push("/dashboard");
          } else {
             const data = await response.json();

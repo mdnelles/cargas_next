@@ -9,10 +9,10 @@ import {
    SelectValue,
 } from "@/components/ui/select";
 import VehicleDataTable from "@/components/VehicleDataTable";
-import DashboardTemplate from "@/app/dashboard/dashboard-template";
+import DashboardTemplate from "../dashboard-template";
 import Loading from "@/components/loading";
 
-export default function () {
+export default function ClientMyVehicles() {
    const [makes, setMakes] = useState<string[]>([]);
    const [models, setModels] = useState<string[]>([]);
    const [selectedMake, setSelectedMake] = useState<string>("");

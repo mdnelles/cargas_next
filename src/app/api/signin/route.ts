@@ -44,6 +44,14 @@ export async function POST(req: Request) {
          country: user.country,
       });
 
+      const [rows2]: any[] = await pool.query(
+         "SELECT vehicle_id FROM vehicle_user_link WHERE user_id = ?",
+         [user.id]
+      );
+      const vehicles = rows2.map(
+         (row: { vehicle_id: number }) => row.vehicle_id
+      );
+
       const response = NextResponse.json(
          {
             message: "Sign in successful",
@@ -53,6 +61,7 @@ export async function POST(req: Request) {
                name: user.name,
                country: user.country,
                token,
+               vehicles,
             },
          },
          { status: 200 }

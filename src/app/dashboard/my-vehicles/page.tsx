@@ -1,7 +1,5 @@
-import MyVehicleClient from "./MyVehicleClient";
+import ClientMyVehicles from "./ClientMyVehicles";
 
-export const dynamic = "force-dynamic";
-
-export default function MyVehiclePage() {
-   return <MyVehicleClient />;
+export default function VehicleDataPage() {
+   return <ClientMyVehicles />;
 }

@@ -11,38 +11,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface VehicleDataTableProps {
    data: any[]; // Update this to a more specific type if you know the structure of your vehicle data
+   handleChecked: (checked: boolean, vehicle_id: number) => void;
 }
 
-const excludedColumns = [
-   "ID",
-   "Time_to_charge_at_120V",
-   "Time_to_charge_at_240V",
-   "City_Mpg_For_Fuel_Type1",
-   "Unrounded_City_Mpg_For_Fuel_Type1_2",
-   "City_Mpg_For_Fuel_Type2",
-   "Unrounded_City_Mpg_For_Fuel_Type2",
-   "City_gasoline_consumption",
-   "City_electricity_consumption",
-   "EPA_city_utility_factor",
-   "Co2_Fuel_Type1",
-   "Co2_Fuel_Type2",
-   "Co2_Tailpipe_For_Fuel_Type2",
-   "Co2_Tailpipe_For_Fuel_Type1",
-   "Annual_Fuel_Cost_For_Fuel_Type1",
-   "Annual_Fuel_Cost_For_Fuel_Type2",
-   "Unrounded_Highway_Mpg_For_Fuel_Type1",
-   "Highway_Mpg_For_Fuel_Type2",
-   "Unrounded_Highway_Mpg_For_Fuel_Type2",
-   "Highway_gasoline_consumption",
-   "Highway_electricity_consumption",
-   "EPA_highway_utility_factor",
-   "Hatchback_luggage_volume",
-   "Hatchback_passenger_volume",
-   "Unadjusted_City_Mpg_For_Fuel_Type1",
-   "Unadjusted_City_Mpg_For_Fuel_Type2",
-   "Unadjusted_Highway_Mpg_For_Fuel_Type1",
-   "Unadjusted_Highway_Mpg_For_Fuel_Type2",
-];
+const excludedColumns = ["ID"];
 
 const truncateTitle = (title: string, maxLength: number = 20) => {
    // Replace underscores with spaces and convert to uppercase
@@ -53,7 +25,10 @@ const truncateTitle = (title: string, maxLength: number = 20) => {
       : formattedTitle;
 };
 
-export default function VehicleDataTable({ data }: VehicleDataTableProps) {
+export default function VehicleDataTable({
+   data,
+   handleChecked,
+}: VehicleDataTableProps) {
    const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
    const [allColumns, setAllColumns] = useState<string[]>([]);
 
@@ -81,25 +56,11 @@ export default function VehicleDataTable({ data }: VehicleDataTableProps) {
 
    return (
       <div>
-         {/* <div className='mb-4'>
-        <h3 className="text-lg font-semibold mb-2">Toggle Columns:</h3>
-        <div className='flex flex-wrap gap-2'>
-          {allColumns.map((column) => (
-            <label key={column} className='flex items-center space-x-2'>
-              <Checkbox
-                checked={visibleColumns.includes(column)}
-                onCheckedChange={() => toggleColumn(column)}
-                id={`checkbox-${column}`}
-              />
-              <span title={column}>{truncateTitle(column)}</span>
-            </label>
-          ))}
-        </div>
-      </div> */}
          <div className='overflow-x-auto'>
             <Table>
                <TableHeader>
                   <TableRow>
+                     <TableHead>Add</TableHead>
                      {visibleColumns.map((column) => (
                         <TableHead key={column} title={column}>
                            {truncateTitle(column)}
@@ -110,6 +71,13 @@ export default function VehicleDataTable({ data }: VehicleDataTableProps) {
                <TableBody>
                   {data.map((vehicle, index) => (
                      <TableRow key={index}>
+                        <TableCell>
+                           <Checkbox
+                              onCheckedChange={(checked) =>
+                                 handleChecked(checked === true, vehicle.ID)
+                              }
+                           />
+                        </TableCell>
                         {visibleColumns.map((column) => (
                            <TableCell key={column}>{vehicle[column]}</TableCell>
                         ))}
