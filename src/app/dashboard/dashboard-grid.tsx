@@ -4,6 +4,7 @@
 import Link from "next/link";
 import {
    Droplet,
+   Database,
    Wrench,
    Receipt,
    Map,
@@ -22,6 +23,11 @@ const dashboardItems = [
       name: "Fuel Up Records",
       icon: Droplet,
       href: "/dashboard/fuel-up-records",
+   },
+   {
+      name: "Car Data",
+      icon: Database,
+      href: "/dashboard/vehicle-data",
    },
    {
       name: "Service Records",

@@ -61,13 +61,34 @@ export async function GET(req: Request) {
 
 export async function POST(request: Request) {
    try {
+      const authHeader = request.headers.get("Authorization");
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+         return NextResponse.json(
+            { error: "Authorization header missing or invalid" },
+            { status: 401 }
+         );
+      }
+
+      const token = authHeader.split(" ")[1];
+      const decoded = verifyToken(token);
+      if (!decoded || typeof decoded !== "object" || !decoded.userId) {
+         return NextResponse.json(
+            { error: "Invalid or expired token" },
+            { status: 401 }
+         );
+      }
+
+      const userId = decoded.userId;
       const body = await request.json();
-      const [result] = await pool.query<any>(
+      const fuelUpData = { ...body, user_id: userId };
+
+      const [result] = await pool.query<OkPacket>(
          "INSERT INTO fuel_up_records SET ?",
-         [body]
+         [fuelUpData]
       );
+
       return NextResponse.json(
-         { id: result.insertId, ...body },
+         { id: result.insertId, ...fuelUpData },
          { status: 201 }
       );
    } catch (error) {

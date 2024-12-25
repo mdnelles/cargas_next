@@ -14,6 +14,6 @@ export async function getFuelUps(token: string): Promise<FuelUp[]> {
    const data = await response.json();
    return data.sort(
       (a: FuelUp, b: FuelUp) =>
-         new Date(b.date_time).getTime() - new Date(a.date_time).getTime()
+         new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
    );
 }

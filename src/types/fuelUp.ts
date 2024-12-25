@@ -4,11 +4,11 @@ export interface FuelUp {
    previousOdometer: number | null;
    price: number;
    volume: number;
-   total_cost: number;
+   totalCost: number;
    isPartialFuelUp: boolean;
    isMissedFuelUp: boolean;
    vehicle: string;
-   date_time: string;
+   dateTime: string;
    paymentType: string | null;
    kilometers: number | null;
 }

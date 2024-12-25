@@ -20,10 +20,10 @@ class FuelUp extends Model<
    declare totalCost: number;
    declare isPartialFuelUp: boolean;
    declare isMissedFuelUp: boolean;
-   declare vehicleId: number;
+   declare vehicle: number;
    declare dateTime: Date;
    declare paymentType: string | null;
-   declare kilometersAdded: number | null;
+   declare kilometers: number | null;
 }
 
 FuelUp.init(
@@ -83,7 +83,7 @@ FuelUp.init(
          allowNull: false,
          defaultValue: false,
       },
-      vehicleId: {
+      vehicle: {
          type: DataTypes.INTEGER,
          allowNull: false,
       },
@@ -95,7 +95,7 @@ FuelUp.init(
          type: DataTypes.STRING,
          allowNull: true,
       },
-      kilometersAdded: {
+      kilometers: {
          type: DataTypes.FLOAT,
          allowNull: true,
          validate: {

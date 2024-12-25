@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { parseNumber } from "@/lib/utils";
 import { FuelUpDetailsDialog } from "./FuelUpDetailsDialog";
 import { FuelUp } from "@/types/fuelUp";
+import { AddFuelUpForm } from "./AddFuelDialog";
 
 interface FuelUpRecordsTableProps {
    initialFuelUps: FuelUp[];
@@ -39,8 +40,14 @@ export function FuelUpRecordsTable({
       if (window.confirm("Are you sure you want to delete this record?")) {
          try {
             setIsLoading(true);
-            const response = await fetch(`/api/fuel-ups/${id}`, {
+            const token = JSON.parse(
+               localStorage.getItem("user") || "{}"
+            ).token;
+            const response = await fetch(`/api/fuel-ups?id=${id}`, {
                method: "DELETE",
+               headers: {
+                  Authorization: `Bearer ${token}`,
+               },
             });
             if (!response.ok) {
                throw new Error("Failed to delete fuel-up");
@@ -69,7 +76,7 @@ export function FuelUpRecordsTable({
 
    return (
       <>
-         {/* AddFuelUpForm component */}
+         <AddFuelUpForm onAddFuelUp={handleAddFuelUp} />
          {isLoading ? (
             <LoadingSkeleton />
          ) : (
@@ -98,7 +105,7 @@ export function FuelUpRecordsTable({
                         <TableRow key={fuelUp.id}>
                            <TableCell>{index + 1}</TableCell>
                            <TableCell>
-                              {new Date(fuelUp.date_time).toLocaleDateString()}
+                              {new Date(fuelUp.dateTime).toLocaleDateString()}
                            </TableCell>
                            <TableCell>
                               {parseNumber(fuelUp.odometer).toFixed(1)}
@@ -110,7 +117,7 @@ export function FuelUpRecordsTable({
                               ${parseNumber(fuelUp.price).toFixed(2)}
                            </TableCell>
                            <TableCell>
-                              ${parseNumber(fuelUp.total_cost).toFixed(2)}
+                              ${parseNumber(fuelUp.totalCost).toFixed(2)}
                            </TableCell>
                            <TableCell>
                               {fuelUp.isPartialFuelUp ? "Yes" : "No"}

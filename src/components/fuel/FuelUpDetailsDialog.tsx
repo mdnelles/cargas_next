@@ -31,7 +31,7 @@ export function FuelUpDetailsDialog({
             <div className='grid grid-cols-2 gap-4'>
                <div>
                   <strong>Date:</strong>{" "}
-                  {new Date(fuelUp.date_time).toLocaleString()}
+                  {new Date(fuelUp.dateTime).toLocaleString()}
                </div>
                <div>
                   <strong>Odometer:</strong>{" "}
@@ -53,7 +53,7 @@ export function FuelUpDetailsDialog({
                </div>
                <div>
                   <strong>Total Cost:</strong> $
-                  {parseNumber(fuelUp.total_cost).toFixed(2)}
+                  {parseNumber(fuelUp.totalCost).toFixed(2)}
                </div>
                <div>
                   <strong>Partial Fuel-Up:</strong>{" "}
