@@ -14,6 +14,7 @@ interface VehicleDataTableProps {
 }
 
 const excludedColumns = [
+   "ID",
    "Time_to_charge_at_120V",
    "Time_to_charge_at_240V",
    "City_Mpg_For_Fuel_Type1",
@@ -43,8 +44,13 @@ const excludedColumns = [
    "Unadjusted_Highway_Mpg_For_Fuel_Type2",
 ];
 
-const truncateTitle = (title: string, maxLength: number = 10) => {
-   return title.length > maxLength ? title.slice(0, maxLength) + "..." : title;
+const truncateTitle = (title: string, maxLength: number = 20) => {
+   // Replace underscores with spaces and convert to uppercase
+   const formattedTitle = title.replace(/_/g, " ").toUpperCase();
+   // Truncate the title if necessary
+   return formattedTitle.length > maxLength
+      ? formattedTitle.slice(0, maxLength) + "..."
+      : formattedTitle;
 };
 
 export default function VehicleDataTable({ data }: VehicleDataTableProps) {

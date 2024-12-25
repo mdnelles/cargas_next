@@ -20,6 +20,11 @@ import {
 
 const dashboardItems = [
    {
+      name: "My Vehicles",
+      icon: Car,
+      href: "/dashboard/my-vehicles",
+   },
+   {
       name: "Fuel Up Records",
       icon: Droplet,
       href: "/dashboard/fuel-up-records",
