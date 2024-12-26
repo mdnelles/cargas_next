@@ -125,13 +125,16 @@ export default function ClientMyVehicles() {
       setSelectedModel(value);
    };
 
-   const handleChecked = async (checked: boolean, id: number) => {
+   const handleChecked = async (
+      checked: boolean,
+      id: number,
+      year: number,
+      make: string,
+      model: string
+   ) => {
       try {
-         console.log("ClientMyVehicle Checked:", checked, "ID:", id);
-
          // Retrieve the user object from localStorage
          const userData = JSON.parse(localStorage.getItem("user") || "{}");
-         console.log("User data from localStorage:", userData);
 
          if (!userData || !userData.token) {
             console.error("User data or token not found in localStorage");
@@ -141,17 +144,27 @@ export default function ClientMyVehicles() {
          const token = userData.token;
 
          // Ensure vehicles is an array
-         const vehicles: number[] = userData.vehicles || [];
+         const vehicles: Array<{
+            id: number;
+            year: number;
+            make: string;
+            model: string;
+         }> = userData.vehicles || [];
 
-         // Add or remove the vehicle ID based on the checkbox state
+         // Add or remove the vehicle object based on the checkbox state
          if (checked) {
-            if (!vehicles.includes(id)) {
-               console.log("Adding vehicle ID to user vehicles:", id);
-               vehicles.push(id);
+            if (!vehicles.find((vehicle) => vehicle.id === id)) {
+               console.log("Adding vehicle to user vehicles:", {
+                  id,
+                  year,
+                  make,
+                  model,
+               });
+               vehicles.push({ id, year, make, model });
             }
          } else {
             console.log("Removing vehicle ID from user vehicles:", id);
-            const index = vehicles.indexOf(id);
+            const index = vehicles.findIndex((vehicle) => vehicle.id === id);
             if (index > -1) {
                vehicles.splice(index, 1);
             }
@@ -171,6 +184,9 @@ export default function ClientMyVehicles() {
             body: JSON.stringify({
                user_id: userData.id,
                vehicle_id: id,
+               year,
+               make,
+               model,
             }),
          });
 

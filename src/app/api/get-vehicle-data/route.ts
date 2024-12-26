@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       } else if (make && model) {
          // If both make and model are provided, return all data for that specific vehicle
          query =
-            "SELECT ID, Year, Transmission, Drive,Engine_descriptor,Fuel_type,Vehicle_size_class FROM VehicleData WHERE Make = ? AND Model = ? ORDER BY year DESC ";
+            "SELECT ID, Year, Make, Model, Transmission, Drive,Engine_descriptor,Fuel_type,Vehicle_size_class FROM VehicleData WHERE Make = ? AND Model = ? ORDER BY year DESC ";
          params = [make, model];
       } else {
          // If no parameters are provided, return distinct makes

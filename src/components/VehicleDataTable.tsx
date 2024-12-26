@@ -67,13 +67,6 @@ export default function VehicleDataTable({ data }: VehicleDataTableProps) {
                <TableBody>
                   {data.map((vehicle, index) => (
                      <TableRow key={index}>
-                        {/* <TableCell>
-                           <Checkbox
-                              onCheckedChange={(checked) =>
-                                 handleChecked(checked === true, vehicle.ID)
-                              }
-                           />
-                        </TableCell> */}
                         {visibleColumns.map((column) => (
                            <TableCell key={column}>{vehicle[column]}</TableCell>
                         ))}

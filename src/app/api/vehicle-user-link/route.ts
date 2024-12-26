@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       }
 
       const body = await req.json();
-      const { user_id, vehicle_id } = body;
+      const { user_id, vehicle_id, year, make, model } = body;
 
       if (!user_id || !vehicle_id) {
          return NextResponse.json(
@@ -26,8 +26,8 @@ export async function POST(req: Request) {
       }
 
       const query =
-         "INSERT INTO vehicle_user_link (user_id, vehicle_id) VALUES (?, ?)";
-      await pool.query(query, [user_id, vehicle_id]);
+         "INSERT INTO vehicle_user_link (user_id, vehicle_id, year, make,model) VALUES (?, ?, ?, ?, ?)";
+      await pool.query(query, [user_id, vehicle_id, year, make, model]);
 
       return NextResponse.json({ message: "Vehicle added successfully" });
    } catch (error) {

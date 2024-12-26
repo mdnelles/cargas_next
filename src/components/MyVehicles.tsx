@@ -11,7 +11,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface VehicleDataTableProps {
    data: any[]; // Update this to a more specific type if you know the structure of your vehicle data
-   handleChecked: (checked: boolean, id: number) => void;
+   handleChecked: (
+      checked: boolean,
+      id: number,
+      year: number,
+      make: string,
+      model: string
+   ) => void;
 }
 
 const excludedColumns = ["ID"];
@@ -74,7 +80,13 @@ export default function MyVehicles({
                         <TableCell>
                            <Checkbox
                               onCheckedChange={(checked) =>
-                                 handleChecked(checked === true, vehicle.ID)
+                                 handleChecked(
+                                    checked === true,
+                                    vehicle.ID,
+                                    vehicle.Year,
+                                    vehicle.Make,
+                                    vehicle.Model
+                                 )
                               }
                            />
                         </TableCell>
