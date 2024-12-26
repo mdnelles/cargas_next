@@ -123,13 +123,6 @@ export default function ClientVehicleData() {
       setSelectedModel(value);
    };
 
-   const handleChecked = async (checked: boolean, id: number) => {
-      console.log("Checked:", checked, "ID:", id);
-      // make API call to update the table
-
-      // update localStorage
-   };
-
    return (
       <DashboardTemplate title='Vehicle Data'>
          {error ? (
@@ -171,10 +164,7 @@ export default function ClientVehicleData() {
                </div>
 
                {selectedMake && selectedModel && vehicleData.length > 0 && (
-                  <VehicleDataTable
-                     data={vehicleData}
-                     handleChecked={handleChecked}
-                  />
+                  <VehicleDataTable data={vehicleData} />
                )}
             </div>
          )}

@@ -11,8 +11,10 @@ import {
 import VehicleDataTable from "@/components/VehicleDataTable";
 import DashboardTemplate from "../dashboard-template";
 import Loading from "@/components/loading";
+import MyVehicles from "@/components/MyVehicles";
 
 export default function ClientMyVehicles() {
+   const user = localStorage.getItem("user");
    const [makes, setMakes] = useState<string[]>([]);
    const [models, setModels] = useState<string[]>([]);
    const [selectedMake, setSelectedMake] = useState<string>("");
@@ -124,14 +126,62 @@ export default function ClientMyVehicles() {
    };
 
    const handleChecked = async (checked: boolean, id: number) => {
-      console.log("Checked:", checked, "ID:", id);
-      // make API call to update the table
+      try {
+         console.log("ClientMyVehicle Checked:", checked, "ID:", id);
 
-      // update localStorage
+         // Retrieve the user object from localStorage
+         const userData = JSON.parse(localStorage.getItem("user") || "{}");
+         console.log("User data from localStorage:", userData);
+
+         if (!userData || !userData.token) {
+            console.error("User data or token not found in localStorage");
+            return;
+         }
+
+         const token = userData.token;
+
+         // Ensure vehicles is an array
+         const vehicles: number[] = userData.vehicles || [];
+
+         // Add or remove the vehicle ID based on the checkbox state
+         if (checked) {
+            if (!vehicles.includes(id)) {
+               console.log("Adding vehicle ID to user vehicles:", id);
+               vehicles.push(id);
+            }
+         } else {
+            console.log("Removing vehicle ID from user vehicles:", id);
+            const index = vehicles.indexOf(id);
+            if (index > -1) {
+               vehicles.splice(index, 1);
+            }
+         }
+
+         // Update the user object in localStorage
+         userData.vehicles = vehicles;
+         localStorage.setItem("user", JSON.stringify(userData));
+
+         // API call with token in the Authorization header
+         await fetch("/api/vehicle-user-link", {
+            method: checked ? "POST" : "DELETE",
+            headers: {
+               "Content-Type": "application/json",
+               "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+               user_id: userData.id,
+               vehicle_id: id,
+            }),
+         });
+
+         console.log("Updated vehicles in localStorage:", vehicles);
+      } catch (error) {
+         console.error("Error updating user vehicles:", error);
+      }
    };
 
    return (
-      <DashboardTemplate title='Vehicle Data'>
+      <DashboardTemplate title='My Vehicles'>
          {error ? (
             <div className='text-red-500'>{error}</div>
          ) : isLoading ? (
@@ -171,7 +221,7 @@ export default function ClientMyVehicles() {
                </div>
 
                {selectedMake && selectedModel && vehicleData.length > 0 && (
-                  <VehicleDataTable
+                  <MyVehicles
                      data={vehicleData}
                      handleChecked={handleChecked}
                   />

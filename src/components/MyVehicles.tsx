@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface VehicleDataTableProps {
    data: any[]; // Update this to a more specific type if you know the structure of your vehicle data
+   handleChecked: (checked: boolean, id: number) => void;
 }
 
 const excludedColumns = ["ID"];
@@ -24,7 +25,10 @@ const truncateTitle = (title: string, maxLength: number = 20) => {
       : formattedTitle;
 };
 
-export default function VehicleDataTable({ data }: VehicleDataTableProps) {
+export default function MyVehicles({
+   data,
+   handleChecked,
+}: VehicleDataTableProps) {
    const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
    const [allColumns, setAllColumns] = useState<string[]>([]);
 
@@ -67,13 +71,13 @@ export default function VehicleDataTable({ data }: VehicleDataTableProps) {
                <TableBody>
                   {data.map((vehicle, index) => (
                      <TableRow key={index}>
-                        {/* <TableCell>
+                        <TableCell>
                            <Checkbox
                               onCheckedChange={(checked) =>
                                  handleChecked(checked === true, vehicle.ID)
                               }
                            />
-                        </TableCell> */}
+                        </TableCell>
                         {visibleColumns.map((column) => (
                            <TableCell key={column}>{vehicle[column]}</TableCell>
                         ))}
