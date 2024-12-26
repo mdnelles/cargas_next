@@ -36,25 +36,18 @@ export default function MyVehicles({
    handleChecked,
 }: VehicleDataTableProps) {
    const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
-   const [allColumns, setAllColumns] = useState<string[]>([]);
+
+   const userData = JSON.parse(localStorage.getItem("user") || "{}");
+   const userVehicles = userData.vehicles || []; // Ensure userVehicles is always an array
 
    useEffect(() => {
       if (data.length > 0) {
          const columns = Object.keys(data[0]);
-         setAllColumns(columns);
          setVisibleColumns(
             columns.filter((col) => !excludedColumns.includes(col))
          );
       }
    }, [data]);
-
-   const toggleColumn = (column: string) => {
-      setVisibleColumns((prev) =>
-         prev.includes(column)
-            ? prev.filter((col) => col !== column)
-            : [...prev, column]
-      );
-   };
 
    if (data.length === 0) {
       return <div>No data available</div>;
@@ -79,6 +72,10 @@ export default function MyVehicles({
                      <TableRow key={index}>
                         <TableCell>
                            <Checkbox
+                              checked={userVehicles.some(
+                                 (userVehicle: { id: number }) =>
+                                    userVehicle.id === vehicle.ID
+                              )}
                               onCheckedChange={(checked) =>
                                  handleChecked(
                                     checked === true,

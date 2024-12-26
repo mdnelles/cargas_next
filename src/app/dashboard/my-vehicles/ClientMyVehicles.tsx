@@ -8,20 +8,48 @@ import {
    SelectTrigger,
    SelectValue,
 } from "@/components/ui/select";
-import VehicleDataTable from "@/components/VehicleDataTable";
 import DashboardTemplate from "../dashboard-template";
 import Loading from "@/components/loading";
 import MyVehicles from "@/components/MyVehicles";
+import {
+   Table,
+   TableBody,
+   TableCell,
+   TableHead,
+   TableHeader,
+   TableRow,
+} from "@/components/ui/table";
 
 export default function ClientMyVehicles() {
-   const user = localStorage.getItem("user");
    const [makes, setMakes] = useState<string[]>([]);
    const [models, setModels] = useState<string[]>([]);
    const [selectedMake, setSelectedMake] = useState<string>("");
    const [selectedModel, setSelectedModel] = useState<string>("");
    const [vehicleData, setVehicleData] = useState<any[]>([]);
+   const [selectedVehicles, setSelectedVehicles] = useState<any[]>([]);
    const [isLoading, setIsLoading] = useState<boolean>(true);
    const [error, setError] = useState<string | null>(null);
+
+   // Fetch selected vehicles from localStorage
+   useEffect(() => {
+      const loadSelectedVehicles = () => {
+         const userData = JSON.parse(localStorage.getItem("user") || "{}");
+         const vehicles = userData.vehicles || [];
+         setSelectedVehicles(vehicles);
+      };
+
+      loadSelectedVehicles();
+
+      // Listen for changes in localStorage
+      const handleStorageChange = () => {
+         loadSelectedVehicles();
+      };
+      window.addEventListener("storage", handleStorageChange);
+
+      return () => {
+         window.removeEventListener("storage", handleStorageChange);
+      };
+   }, []);
 
    useEffect(() => {
       const fetchMakes = async () => {
@@ -91,17 +119,12 @@ export default function ClientMyVehicles() {
                   throw new Error("Failed to fetch vehicle data");
                }
                const data = await response.json();
-               console.log("Fetched vehicle data:", data);
                if (Array.isArray(data) && data.length > 0) {
                   setVehicleData(data);
                } else {
                   setVehicleData([]);
-                  console.log(
-                     "No data returned for the selected make and model"
-                  );
                }
             } catch (err) {
-               console.error("Error fetching vehicle data:", err);
                setError("Failed to load vehicle data. Please try again later.");
             } finally {
                setIsLoading(false);
@@ -114,14 +137,12 @@ export default function ClientMyVehicles() {
    }, [selectedMake, selectedModel]);
 
    const handleMakeChange = (value: string) => {
-      console.log("Selected Make:", value);
       setSelectedMake(value);
       setSelectedModel("");
       setVehicleData([]);
    };
 
    const handleModelChange = (value: string) => {
-      console.log("Selected Model:", value);
       setSelectedModel(value);
    };
 
@@ -133,7 +154,6 @@ export default function ClientMyVehicles() {
       model: string
    ) => {
       try {
-         // Retrieve the user object from localStorage
          const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
          if (!userData || !userData.token) {
@@ -141,9 +161,6 @@ export default function ClientMyVehicles() {
             return;
          }
 
-         const token = userData.token;
-
-         // Ensure vehicles is an array
          const vehicles: Array<{
             id: number;
             year: number;
@@ -151,35 +168,26 @@ export default function ClientMyVehicles() {
             model: string;
          }> = userData.vehicles || [];
 
-         // Add or remove the vehicle object based on the checkbox state
          if (checked) {
             if (!vehicles.find((vehicle) => vehicle.id === id)) {
-               console.log("Adding vehicle to user vehicles:", {
-                  id,
-                  year,
-                  make,
-                  model,
-               });
                vehicles.push({ id, year, make, model });
             }
          } else {
-            console.log("Removing vehicle ID from user vehicles:", id);
             const index = vehicles.findIndex((vehicle) => vehicle.id === id);
             if (index > -1) {
                vehicles.splice(index, 1);
             }
          }
 
-         // Update the user object in localStorage
          userData.vehicles = vehicles;
          localStorage.setItem("user", JSON.stringify(userData));
+         setSelectedVehicles(vehicles);
 
-         // API call with token in the Authorization header
          await fetch("/api/vehicle-user-link", {
             method: checked ? "POST" : "DELETE",
             headers: {
                "Content-Type": "application/json",
-               "Authorization": `Bearer ${token}`,
+               "Authorization": `Bearer ${userData.token}`,
             },
             body: JSON.stringify({
                user_id: userData.id,
@@ -189,8 +197,6 @@ export default function ClientMyVehicles() {
                model,
             }),
          });
-
-         console.log("Updated vehicles in localStorage:", vehicles);
       } catch (error) {
          console.error("Error updating user vehicles:", error);
       }
@@ -198,51 +204,104 @@ export default function ClientMyVehicles() {
 
    return (
       <DashboardTemplate title='My Vehicles'>
-         {error ? (
-            <div className='text-red-500'>{error}</div>
-         ) : isLoading ? (
+         {error && <div className='text-red-500'>{error}</div>}
+         {isLoading ? (
             <Loading />
          ) : (
-            <div className='space-y-4'>
-               <div className='flex space-x-4'>
-                  <Select onValueChange={handleMakeChange} value={selectedMake}>
-                     <SelectTrigger className='w-[180px]'>
-                        <SelectValue placeholder='Select Make' />
-                     </SelectTrigger>
-                     <SelectContent>
-                        {makes.map((make) => (
-                           <SelectItem key={make} value={make}>
-                              {make}
-                           </SelectItem>
-                        ))}
-                     </SelectContent>
-                  </Select>
-
-                  <Select
-                     onValueChange={handleModelChange}
-                     value={selectedModel}
-                     disabled={!selectedMake}
-                  >
-                     <SelectTrigger className='w-[180px]'>
-                        <SelectValue placeholder='Select Model' />
-                     </SelectTrigger>
-                     <SelectContent>
-                        {models.map((model) => (
-                           <SelectItem key={model} value={model}>
-                              {model}
-                           </SelectItem>
-                        ))}
-                     </SelectContent>
-                  </Select>
-               </div>
-
-               {selectedMake && selectedModel && vehicleData.length > 0 && (
-                  <MyVehicles
-                     data={vehicleData}
-                     handleChecked={handleChecked}
-                  />
+            <>
+               <h3>Selected Vehicles</h3>
+               {selectedVehicles.length > 0 ? (
+                  <div className='overflow-x-auto'>
+                     <Table>
+                        <TableHeader>
+                           <TableRow>
+                              <TableHead>Make</TableHead>
+                              <TableHead>Model</TableHead>
+                              <TableHead>Year</TableHead>
+                              <TableHead>ID</TableHead>
+                              <TableHead>Actions</TableHead>{" "}
+                              {/* New column for actions */}
+                           </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                           {selectedVehicles.map((vehicle, index) => (
+                              <TableRow key={index}>
+                                 <TableCell>{vehicle.make}</TableCell>
+                                 <TableCell>{vehicle.model}</TableCell>
+                                 <TableCell>{vehicle.year}</TableCell>
+                                 <TableCell>{vehicle.id}</TableCell>
+                                 <TableCell>
+                                    {/* Delete button */}
+                                    <button
+                                       className='text-red-500 hover:underline'
+                                       onClick={() =>
+                                          handleChecked(
+                                             false,
+                                             vehicle.id,
+                                             vehicle.year,
+                                             vehicle.make,
+                                             vehicle.model
+                                          )
+                                       }
+                                    >
+                                       Delete
+                                    </button>
+                                 </TableCell>
+                              </TableRow>
+                           ))}
+                        </TableBody>
+                     </Table>
+                  </div>
+               ) : (
+                  <div>No vehicles selected</div>
                )}
-            </div>
+
+               <div className='space-y-4'>
+                  <hr />
+                  <h3>Add Vehicles</h3>
+                  <div className='flex space-x-4'>
+                     <Select
+                        onValueChange={handleMakeChange}
+                        value={selectedMake}
+                     >
+                        <SelectTrigger className='w-[180px]'>
+                           <SelectValue placeholder='Select Make' />
+                        </SelectTrigger>
+                        <SelectContent>
+                           {makes.map((make) => (
+                              <SelectItem key={make} value={make}>
+                                 {make}
+                              </SelectItem>
+                           ))}
+                        </SelectContent>
+                     </Select>
+
+                     <Select
+                        onValueChange={handleModelChange}
+                        value={selectedModel}
+                        disabled={!selectedMake}
+                     >
+                        <SelectTrigger className='w-[180px]'>
+                           <SelectValue placeholder='Select Model' />
+                        </SelectTrigger>
+                        <SelectContent>
+                           {models.map((model) => (
+                              <SelectItem key={model} value={model}>
+                                 {model}
+                              </SelectItem>
+                           ))}
+                        </SelectContent>
+                     </Select>
+                  </div>
+
+                  {selectedMake && selectedModel && vehicleData.length > 0 && (
+                     <MyVehicles
+                        data={vehicleData}
+                        handleChecked={handleChecked}
+                     />
+                  )}
+               </div>
+            </>
          )}
       </DashboardTemplate>
    );
