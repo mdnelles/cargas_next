@@ -1,6 +1,7 @@
 // src/app/dashboard/dashboard-grid.tsx
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
    Droplet,
@@ -64,20 +65,60 @@ const dashboardItems = [
 ];
 
 export default function DashboardGrid() {
+   const [hasVehicles, setHasVehicles] = useState(false);
+
+   useEffect(() => {
+      // Check localStorage for user.vehicles
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (
+         user.vehicles &&
+         Array.isArray(user.vehicles) &&
+         user.vehicles.length > 0
+      ) {
+         setHasVehicles(true);
+      }
+   }, []);
+
    return (
-      <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4'>
-         {dashboardItems.map((item) => (
-            <Link
-               key={item.name}
-               href={item.href}
-               className='flex flex-col items-center justify-center p-4 bg-[#E6FFFF] rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 hover:bg-[#D1FFFF]'
-            >
-               <item.icon className='w-8 h-8 mb-2 text-[#93E7FF]' />
-               <span className='text-sm text-center font-medium text-gray-700'>
-                  {item.name}
-               </span>
-            </Link>
-         ))}
+      <div>
+         {!hasVehicles && (
+            <div className='text-center text-red-500 font-bold mb-4'>
+               You must first select at least one vehicle.
+            </div>
+         )}
+         <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4'>
+            {dashboardItems.map((item, index) => (
+               <Link
+                  key={item.name}
+                  href={index === 0 || hasVehicles ? item.href : "#"}
+                  className={`flex flex-col items-center justify-center p-4 rounded-lg shadow-md transition-shadow duration-200 ${
+                     index === 0 || hasVehicles
+                        ? "bg-[#E6FFFF] hover:shadow-lg hover:bg-[#D1FFFF]"
+                        : "bg-gray-300 cursor-not-allowed"
+                  }`}
+                  onClick={(e) => {
+                     if (index !== 0 && !hasVehicles) e.preventDefault();
+                  }}
+               >
+                  <item.icon
+                     className={`w-8 h-8 mb-2 ${
+                        index === 0 || hasVehicles
+                           ? "text-[#93E7FF]"
+                           : "text-gray-500"
+                     }`}
+                  />
+                  <span
+                     className={`text-sm text-center font-medium ${
+                        index === 0 || hasVehicles
+                           ? "text-gray-700"
+                           : "text-gray-500"
+                     }`}
+                  >
+                     {item.name}
+                  </span>
+               </Link>
+            ))}
+         </div>
       </div>
    );
 }
