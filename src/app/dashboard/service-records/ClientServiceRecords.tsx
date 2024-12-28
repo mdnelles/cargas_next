@@ -23,6 +23,7 @@ export default function ClientServiceRecords() {
    const [selectedVehicle, setSelectedVehicle] = useState<number>(0);
    const [showAddDialog, setShowAddDialog] = useState(false);
    const [userId, setUserId] = useState<number>(0);
+   const [render, setRender] = useState(false);
 
    useEffect(() => {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -31,6 +32,10 @@ export default function ClientServiceRecords() {
       console.log(userVehicles);
       setVehicles(userVehicles);
    }, []);
+
+   useEffect(() => {
+      console.log("Selected vehicle:", selectedVehicle);
+   }, [selectedVehicle]);
 
    return (
       <DashboardTemplate title='Service Records'>
@@ -51,19 +56,27 @@ export default function ClientServiceRecords() {
             </Select>
          </div>
 
-         {selectedVehicle && (
+         {selectedVehicle ? (
             <>
                <Button onClick={() => setShowAddDialog(true)} className='mb-4'>
                   Add New Service Record
                </Button>
-               <ServiceRecordsTable vehicleId={selectedVehicle} />
+               <ServiceRecordsTable
+                  vehicleId={selectedVehicle}
+                  render={render}
+                  selectedVehicle={selectedVehicle}
+               />
             </>
+         ) : (
+            <></>
          )}
 
          {showAddDialog && (
             <AddServiceRecord
                vehicleId={selectedVehicle!}
                userId={userId}
+               render={render}
+               setRender={setRender}
                onClose={() => setShowAddDialog(false)}
             />
          )}

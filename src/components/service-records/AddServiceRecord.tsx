@@ -25,6 +25,8 @@ import {
 interface AddServiceRecordProps {
    vehicleId: number;
    userId: number;
+   render: boolean;
+   setRender: (value: boolean) => void;
    onClose: () => void;
 }
 
@@ -32,6 +34,8 @@ export default function AddServiceRecord({
    vehicleId,
    userId,
    onClose,
+   render,
+   setRender,
 }: AddServiceRecordProps) {
    const [isLongForm, setIsLongForm] = useState(false);
    const [formData, setFormData] = useState({
@@ -78,6 +82,7 @@ export default function AddServiceRecord({
               service_type: formData.service_type,
               service_description: formData.service_description,
            };
+
       const response = await fetch("/api/service-records", {
          method: "POST",
          headers: { "Content-Type": "application/json" },
@@ -89,6 +94,23 @@ export default function AddServiceRecord({
       });
 
       if (response.ok) {
+         const responseData = await response.json(); // Extract the JSON response
+         const newServiceRecord = {
+            id: responseData.id,
+            user_id: userId,
+            vehicle_id: vehicleId,
+            ...dataToSubmit,
+         };
+
+         const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+         if (!user["service_records"]) {
+            user["service_records"] = [];
+         }
+
+         user["service_records"].push(newServiceRecord);
+         localStorage.setItem("user", JSON.stringify(user));
+         setRender(!render);
          onClose();
       } else {
          console.error("Failed to add service record");
@@ -176,8 +198,37 @@ export default function AddServiceRecord({
                         <SelectValue placeholder='Select service type' />
                      </SelectTrigger>
                      <SelectContent>
+                        <SelectItem value='air_conditioning'>
+                           Air Conditioning Service
+                        </SelectItem>
+                        <SelectItem value='battery_replacement'>
+                           Battery Replacement
+                        </SelectItem>
+                        <SelectItem value='brake_service'>
+                           Brake Service
+                        </SelectItem>
+                        <SelectItem value='engine_tune_up'>
+                           Engine Tune-Up
+                        </SelectItem>
+                        <SelectItem value='exhaust_system'>
+                           Exhaust System Repair
+                        </SelectItem>
                         <SelectItem value='oil_change'>Oil Change</SelectItem>
-                        <SelectItem value='radiator'>Radiator</SelectItem>
+                        <SelectItem value='radiator'>
+                           Radiator Service
+                        </SelectItem>
+                        <SelectItem value='suspension'>
+                           Suspension Repair
+                        </SelectItem>
+                        <SelectItem value='tire_rotation'>
+                           Tire Rotation
+                        </SelectItem>
+                        <SelectItem value='transmission_service'>
+                           Transmission Service
+                        </SelectItem>
+                        <SelectItem value='wheel_alignment'>
+                           Wheel Alignment
+                        </SelectItem>
                         <SelectItem value='other'>Other</SelectItem>
                      </SelectContent>
                   </Select>

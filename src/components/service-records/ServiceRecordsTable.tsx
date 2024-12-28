@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
    Table,
@@ -31,6 +31,8 @@ interface ServiceRecord {
 
 interface ServiceRecordsTableProps {
    vehicleId: number;
+   render?: boolean;
+   selectedVehicle: number;
 }
 
 const formatValue = (key: string, value: any): React.ReactNode => {
@@ -42,7 +44,7 @@ const formatValue = (key: string, value: any): React.ReactNode => {
       return value ? `$${Number(value).toFixed(2)}` : "$0.00";
    }
    if (key === "covered_by_warranty" || key === "at_the_dealer") {
-      return value === "1" || value === true ? (
+      return value === 1 || value === true ? (
          <CheckCircle2 className='text-green-500' />
       ) : (
          <XCircle className='text-red-500' />
@@ -53,27 +55,61 @@ const formatValue = (key: string, value: any): React.ReactNode => {
 
 export default function ServiceRecordsTable({
    vehicleId,
+   render,
+   selectedVehicle,
 }: ServiceRecordsTableProps) {
    const [records, setRecords] = useState<ServiceRecord[]>([]);
    const [selectedRecord, setSelectedRecord] = useState<ServiceRecord | null>(
       null
    );
 
-   useEffect(() => {
-      fetchRecords();
-   }, [vehicleId]);
-
-   const fetchRecords = async () => {
-      const response = await fetch(
-         `/api/service-records?vehicleId=${vehicleId}`
-      );
-      const data = await response.json();
-      setRecords(data);
+   const fetchRecords = () => {
+      console.log("fetching records");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (Array.isArray(user.service_records)) {
+         // get the records from the user.serice_records which match the vehicleId
+         const vehicleRecords = user.service_records.filter(
+            (record: ServiceRecord) => record.vehicle_id === vehicleId
+         );
+         setRecords(vehicleRecords);
+      }
    };
 
-   const handleDelete = async (id: number) => {
-      await fetch(`/api/service-records?id=${id}`, { method: "DELETE" });
+   useEffect(() => {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (Array.isArray(user.service_records)) {
+         // get the records from the user.serice_records which match the vehicleId
+         const vehicleRecords = user.service_records.filter(
+            (record: ServiceRecord) => record.vehicle_id === vehicleId
+         );
+         setRecords(vehicleRecords);
+      }
+   }, []);
+
+   useEffect(() => {
+      console.log("render", render);
       fetchRecords();
+   }, [render, selectedVehicle]);
+
+   const handleDelete = async (id: number) => {
+      const userConfirmed = window.confirm(
+         "Are you sure you want to delete this service record?"
+      );
+      if (userConfirmed) {
+         try {
+            await fetch(`/api/service-records?id=${id}`, { method: "DELETE" });
+            // update local storage
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            user.service_records = user.service_records.filter(
+               (record: ServiceRecord) => record.id !== id
+            );
+            localStorage.setItem("user", JSON.stringify(user));
+            fetchRecords();
+         } catch (error) {
+            console.error("Error deleting service record:", error);
+            alert("An error occurred while deleting the service record.");
+         }
+      }
    };
 
    const handleDetails = (record: ServiceRecord) => {
