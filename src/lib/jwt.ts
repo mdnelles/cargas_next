@@ -17,7 +17,5 @@ export function createToken(
 }
 
 export function verifyToken(token: string): CustomJwtPayload {
-   console.log("........token");
-   console.log(token);
    return jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
 }
