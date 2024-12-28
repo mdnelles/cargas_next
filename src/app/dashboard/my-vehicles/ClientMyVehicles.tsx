@@ -215,12 +215,11 @@ export default function ClientMyVehicles() {
                      <Table>
                         <TableHeader>
                            <TableRow>
-                              <TableHead>Make</TableHead>
-                              <TableHead>Model</TableHead>
-                              <TableHead>Year</TableHead>
-                              <TableHead>ID</TableHead>
-                              <TableHead>Actions</TableHead>{" "}
-                              {/* New column for actions */}
+                              <TableCell>Make</TableCell>
+                              <TableCell>Model</TableCell>
+                              <TableCell>Year</TableCell>
+                              <TableCell>ID</TableCell>
+                              <TableCell>Actions</TableCell>
                            </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -231,7 +230,6 @@ export default function ClientMyVehicles() {
                                  <TableCell>{vehicle.year}</TableCell>
                                  <TableCell>{vehicle.id}</TableCell>
                                  <TableCell>
-                                    {/* Delete button */}
                                     <button
                                        className='text-red-500 hover:underline'
                                        onClick={() =>

@@ -17,11 +17,13 @@ import {
    DialogTitle,
    DialogDescription,
 } from "@/components/ui/dialog";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 interface ServiceRecord {
    id: number;
    date_of_service: string;
    covered_by_warranty: boolean;
+   at_the_dealer: boolean;
    cost: number;
    service_type: string;
    [key: string]: any;
@@ -30,6 +32,24 @@ interface ServiceRecord {
 interface ServiceRecordsTableProps {
    vehicleId: number;
 }
+
+const formatValue = (key: string, value: any): React.ReactNode => {
+   if (value === null || value === undefined) return "N/A";
+   if (key === "date_of_service" || key.includes("date")) {
+      return new Date(value).toLocaleDateString();
+   }
+   if (key === "cost" || key.includes("cost")) {
+      return value ? `$${Number(value).toFixed(2)}` : "$0.00";
+   }
+   if (key === "covered_by_warranty" || key === "at_the_dealer") {
+      return value === "1" || value === true ? (
+         <CheckCircle2 className='text-green-500' />
+      ) : (
+         <XCircle className='text-red-500' />
+      );
+   }
+   return value.toString();
+};
 
 export default function ServiceRecordsTable({
    vehicleId,
@@ -67,6 +87,7 @@ export default function ServiceRecordsTable({
                <TableRow>
                   <TableHead>Service Date</TableHead>
                   <TableHead>Warranty</TableHead>
+                  <TableHead>At Dealer</TableHead>
                   <TableHead>Cost</TableHead>
                   <TableHead>Service Type</TableHead>
                   <TableHead>Actions</TableHead>
@@ -79,9 +100,19 @@ export default function ServiceRecordsTable({
                         {new Date(record.date_of_service).toLocaleDateString()}
                      </TableCell>
                      <TableCell>
-                        {record.covered_by_warranty ? "Yes" : "No"}
+                        {formatValue(
+                           "covered_by_warranty",
+                           record.covered_by_warranty
+                        )}
                      </TableCell>
-                     <TableCell>${record.cost.toFixed(2)}</TableCell>
+                     <TableCell>
+                        {formatValue("at_the_dealer", record.at_the_dealer)}
+                     </TableCell>
+                     <TableCell>
+                        {record.cost
+                           ? `$${Number(record.cost).toFixed(2)}`
+                           : "$0.00"}
+                     </TableCell>
                      <TableCell>{record.service_type}</TableCell>
                      <TableCell>
                         <Button
@@ -109,19 +140,31 @@ export default function ServiceRecordsTable({
             open={!!selectedRecord}
             onOpenChange={() => setSelectedRecord(null)}
          >
-            <DialogContent className='max-w-[400px] max-h-[80vh] overflow-y-auto'>
+            <DialogContent className='max-w-[600px] max-h-[80vh] overflow-y-auto'>
                <DialogHeader>
                   <DialogTitle>Service Record Details</DialogTitle>
                </DialogHeader>
-               <DialogDescription>
+               <DialogDescription asChild>
                   {selectedRecord && (
-                     <div>
-                        {Object.entries(selectedRecord).map(([key, value]) => (
-                           <p key={key} className='mb-2'>
-                              <strong>{key.replace(/_/g, " ")}:</strong>{" "}
-                              {value.toString()}
-                           </p>
-                        ))}
+                     <div className='space-y-2'>
+                        {Object.entries(selectedRecord)
+                           .filter(
+                              ([key]) =>
+                                 !["id", "vehicle_id", "user_id"].includes(key)
+                           )
+                           .map(([key, value]) => (
+                              <div
+                                 key={key}
+                                 className='flex justify-between items-center'
+                              >
+                                 <dt className='text-sm font-medium text-gray-500 capitalize text-right w-1/2 pr-4'>
+                                    {key.replace(/_/g, " ")}:
+                                 </dt>
+                                 <dd className='text-sm text-gray-900 w-1/2'>
+                                    {formatValue(key, value)}
+                                 </dd>
+                              </div>
+                           ))}
                      </div>
                   )}
                </DialogDescription>

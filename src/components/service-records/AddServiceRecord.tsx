@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
    Dialog,
    DialogContent,
-   DialogDescription,
    DialogHeader,
    DialogTitle,
+   DialogDescription,
 } from "@/components/ui/dialog";
 import {
    Select,
@@ -23,7 +24,7 @@ import {
 
 interface AddServiceRecordProps {
    vehicleId: number;
-   userId: number | any;
+   userId: number;
    onClose: () => void;
 }
 
@@ -32,6 +33,7 @@ export default function AddServiceRecord({
    userId,
    onClose,
 }: AddServiceRecordProps) {
+   const [isLongForm, setIsLongForm] = useState(false);
    const [formData, setFormData] = useState({
       date_of_service: "",
       at_the_dealer: false,
@@ -66,11 +68,21 @@ export default function AddServiceRecord({
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      const dataToSubmit = isLongForm
+         ? formData
+         : {
+              date_of_service: formData.date_of_service,
+              at_the_dealer: formData.at_the_dealer,
+              covered_by_warranty: formData.covered_by_warranty,
+              cost: formData.cost,
+              service_type: formData.service_type,
+              service_description: formData.service_description,
+           };
       const response = await fetch("/api/service-records", {
          method: "POST",
          headers: { "Content-Type": "application/json" },
          body: JSON.stringify({
-            ...formData,
+            ...dataToSubmit,
             vehicle_id: vehicleId,
             user_id: userId,
          }),
@@ -85,7 +97,7 @@ export default function AddServiceRecord({
 
    return (
       <Dialog open={true} onOpenChange={onClose}>
-         <DialogContent className='max-w-[400px] max-h-[80vh] overflow-y-auto'>
+         <DialogContent className='max-w-[600px] max-h-[80vh] overflow-y-auto'>
             <DialogHeader>
                <DialogTitle>Add New Service Record</DialogTitle>
             </DialogHeader>
@@ -93,11 +105,18 @@ export default function AddServiceRecord({
                Fill in the details below to add a new service record for your
                vehicle.
             </DialogDescription>
+            <div className='flex items-center space-x-2 mb-4'>
+               <Switch
+                  id='long-form-toggle'
+                  checked={isLongForm}
+                  onCheckedChange={setIsLongForm}
+               />
+               <Label htmlFor='long-form-toggle'>
+                  {isLongForm ? "Long Form" : "Short Form"}
+               </Label>
+            </div>
             <form onSubmit={handleSubmit} className='space-y-4'>
-               <div>
-                  <Label htmlFor='vehicle_id'>Vehicle ID (non-editable)</Label>
-                  <Input id='vehicle_id' value={vehicleId} disabled />
-               </div>
+               <input type='hidden' name='vehicle_id' value={vehicleId} />
                <div>
                   <Label htmlFor='date_of_service'>Date of Service</Label>
                   <Input
@@ -142,6 +161,7 @@ export default function AddServiceRecord({
                   />
                </div>
                <div>
+                  <Label htmlFor='service_type'>Service Type</Label>
                   <Select
                      name='service_type'
                      value={formData.service_type}
@@ -156,37 +176,8 @@ export default function AddServiceRecord({
                         <SelectValue placeholder='Select service type' />
                      </SelectTrigger>
                      <SelectContent>
-                        <SelectItem value='air_conditioning'>
-                           Air Conditioning Service
-                        </SelectItem>
-                        <SelectItem value='battery_replacement'>
-                           Battery Replacement
-                        </SelectItem>
-                        <SelectItem value='brake_service'>
-                           Brake Service
-                        </SelectItem>
-                        <SelectItem value='engine_tune_up'>
-                           Engine Tune-Up
-                        </SelectItem>
-                        <SelectItem value='exhaust_system'>
-                           Exhaust System Repair
-                        </SelectItem>
                         <SelectItem value='oil_change'>Oil Change</SelectItem>
-                        <SelectItem value='radiator'>
-                           Radiator Service
-                        </SelectItem>
-                        <SelectItem value='suspension'>
-                           Suspension Repair
-                        </SelectItem>
-                        <SelectItem value='tire_rotation'>
-                           Tire Rotation
-                        </SelectItem>
-                        <SelectItem value='transmission_service'>
-                           Transmission Service
-                        </SelectItem>
-                        <SelectItem value='wheel_alignment'>
-                           Wheel Alignment
-                        </SelectItem>
+                        <SelectItem value='radiator'>Radiator</SelectItem>
                         <SelectItem value='other'>Other</SelectItem>
                      </SelectContent>
                   </Select>
@@ -202,7 +193,136 @@ export default function AddServiceRecord({
                      onChange={handleChange}
                   />
                </div>
-               {/* Add more form fields for the remaining columns */}
+               {isLongForm && (
+                  <>
+                     <div>
+                        <Label htmlFor='mileage_at_service'>
+                           Mileage at Service
+                        </Label>
+                        <Input
+                           id='mileage_at_service'
+                           name='mileage_at_service'
+                           type='number'
+                           value={formData.mileage_at_service}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='dealer_name'>Dealer Name</Label>
+                        <Input
+                           id='dealer_name'
+                           name='dealer_name'
+                           value={formData.dealer_name}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='service_location'>
+                           Service Location
+                        </Label>
+                        <Input
+                           id='service_location'
+                           name='service_location'
+                           value={formData.service_location}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='service_duration'>
+                           Service Duration (hours)
+                        </Label>
+                        <Input
+                           id='service_duration'
+                           name='service_duration'
+                           type='number'
+                           value={formData.service_duration}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='next_service_due'>
+                           Next Service Due Date
+                        </Label>
+                        <Input
+                           id='next_service_due'
+                           name='next_service_due'
+                           type='date'
+                           value={formData.next_service_due}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='next_service_mileage'>
+                           Next Service Mileage
+                        </Label>
+                        <Input
+                           id='next_service_mileage'
+                           name='next_service_mileage'
+                           type='number'
+                           value={formData.next_service_mileage}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='parts_replaced'>Parts Replaced</Label>
+                        <Textarea
+                           id='parts_replaced'
+                           name='parts_replaced'
+                           value={formData.parts_replaced}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='labor_cost'>Labor Cost</Label>
+                        <Input
+                           id='labor_cost'
+                           name='labor_cost'
+                           type='number'
+                           step='0.01'
+                           value={formData.labor_cost}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='parts_cost'>Parts Cost</Label>
+                        <Input
+                           id='parts_cost'
+                           name='parts_cost'
+                           type='number'
+                           step='0.01'
+                           value={formData.parts_cost}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='invoice_number'>Invoice Number</Label>
+                        <Input
+                           id='invoice_number'
+                           name='invoice_number'
+                           value={formData.invoice_number}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='service_notes'>Service Notes</Label>
+                        <Textarea
+                           id='service_notes'
+                           name='service_notes'
+                           value={formData.service_notes}
+                           onChange={handleChange}
+                        />
+                     </div>
+                     <div>
+                        <Label htmlFor='serviced_by'>Serviced By</Label>
+                        <Input
+                           id='serviced_by'
+                           name='serviced_by'
+                           value={formData.serviced_by}
+                           onChange={handleChange}
+                        />
+                     </div>
+                  </>
+               )}
                <Button type='submit'>Add Service Record</Button>
             </form>
          </DialogContent>
