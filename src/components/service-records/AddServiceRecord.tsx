@@ -74,6 +74,7 @@ export default function AddServiceRecord({
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      setIsLoading(true);
       const dataToSubmit = isLongForm
          ? formData
          : {

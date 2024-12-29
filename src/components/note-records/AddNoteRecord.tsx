@@ -44,6 +44,7 @@ export default function AddNoteRecord({
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
+      setIsLoading(true);
       const response = await fetch("/api/note-records", {
          method: "POST",
          headers: { "Content-Type": "application/json" },

@@ -216,6 +216,114 @@ export async function POST(req: Request) {
          updated_at: row.updated_at,
       }));
 
+      // Fetch accident records
+      const [rows7]: any[] = await pool.query(
+         `SELECT 
+            id,
+            user_id,
+            vehicle_id,
+            date_of_accident,
+            location,
+            description,
+            damage_estimate,
+            injury_reported,
+            reported_to_insurance,
+            insurance_claim_number,
+            police_report_number,
+            at_fault,
+            photos,
+            notes,
+            created_at,
+            updated_at
+         FROM accident_records
+         WHERE user_id = ?`,
+         [user.id]
+      );
+
+      const accident_records = rows7.map((row: any) => ({
+         id: row.id,
+         user_id: row.user_id,
+         vehicle_id: row.vehicle_id,
+         date_of_accident: row.date_of_accident,
+         location: row.location,
+         description: row.description,
+         damage_estimate: row.damage_estimate,
+         injury_reported: !!row.injury_reported,
+         reported_to_insurance: !!row.reported_to_insurance,
+         insurance_claim_number: row.insurance_claim_number,
+         police_report_number: row.police_report_number,
+         at_fault: !!row.at_fault,
+         photos: row.photos ? JSON.parse(row.photos) : [],
+         notes: row.notes,
+         created_at: row.created_at,
+         updated_at: row.updated_at,
+      }));
+
+      // Fetch purchase records
+      const [rows8]: any[] = await pool.query(
+         `SELECT 
+            id,
+            user_id,
+            vehicle_id,
+            purchase_date,
+            purchase_price,
+            seller_name,
+            seller_contact,
+            payment_method,
+            warranty,
+            notes,
+            created_at,
+            updated_at
+         FROM purchase_records
+         WHERE user_id = ?`,
+         [user.id]
+      );
+
+      const purchase_records = rows8.map((row: any) => ({
+         id: row.id,
+         user_id: row.user_id,
+         vehicle_id: row.vehicle_id,
+         purchase_date: row.purchase_date,
+         purchase_price: row.purchase_price,
+         seller_name: row.seller_name,
+         seller_contact: row.seller_contact,
+         payment_method: row.payment_method,
+         warranty: row.warranty,
+         notes: row.notes,
+         created_at: row.created_at,
+         updated_at: row.updated_at,
+      }));
+
+      const [rows9]: any[] = await pool.query(
+         `SELECT 
+            id,
+            user_id,
+            vehicle_id,
+            buyer_name,
+            sale_date,
+            sale_price,
+            payment_method,
+            notes,
+            created_at,
+            updated_at
+         FROM sale_records
+         WHERE user_id = ?`,
+         [user.id]
+      );
+
+      const sale_records = rows9.map((row: any) => ({
+         id: row.id,
+         user_id: row.user_id,
+         vehicle_id: row.vehicle_id,
+         buyer_name: row.buyer_name,
+         sale_date: row.sale_date,
+         sale_price: row.sale_price,
+         payment_method: row.payment_method,
+         notes: row.notes,
+         created_at: row.created_at,
+         updated_at: row.updated_at,
+      }));
+
       const response = NextResponse.json(
          {
             message: "Sign in successful",
@@ -229,7 +337,10 @@ export async function POST(req: Request) {
                service_records,
                expense_records,
                trip_records,
-               note_records, // Added note records here
+               note_records,
+               accident_records,
+               purchase_records,
+               sale_records,
             },
          },
          { status: 200 }
