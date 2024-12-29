@@ -44,6 +44,7 @@ export async function POST(req: Request) {
          country: user.country,
       });
 
+      // Fetch vehicles
       const [rows2]: any[] = await pool.query(
          "SELECT vehicle_id,year,make,model FROM vehicle_user_link WHERE user_id = ?",
          [user.id]
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
          model: row.model,
       }));
 
+      // Fetch service records
       const [rows3]: any[] = await pool.query(
          `SELECT 
             id,
@@ -90,8 +92,8 @@ export async function POST(req: Request) {
          user_id: row.user_id,
          vehicle_id: row.vehicle_id,
          date_of_service: row.date_of_service,
-         at_the_dealer: !!row.at_the_dealer, // Convert tinyint to boolean
-         covered_by_warranty: !!row.covered_by_warranty, // Convert tinyint to boolean
+         at_the_dealer: !!row.at_the_dealer,
+         covered_by_warranty: !!row.covered_by_warranty,
          cost: row.cost,
          service_type: row.service_type,
          service_description: row.service_description,
@@ -111,6 +113,43 @@ export async function POST(req: Request) {
          updated_at: row.updated_at,
       }));
 
+      // Fetch expense records
+      const [rows4]: any[] = await pool.query(
+         `SELECT 
+            id,
+            user_id,
+            vehicle_id,
+            date_of_expense,
+            expense_type,
+            expense_description,
+            cost,
+            paid_to,
+            receipt_number,
+            payment_method,
+            mileage_at_expense,
+            created_at,
+            updated_at
+         FROM expense_records
+         WHERE user_id = ?`,
+         [user.id]
+      );
+
+      const expense_records = rows4.map((row: any) => ({
+         id: row.id,
+         user_id: row.user_id,
+         vehicle_id: row.vehicle_id,
+         date_of_expense: row.date_of_expense,
+         expense_type: row.expense_type,
+         expense_description: row.expense_description,
+         cost: row.cost,
+         paid_to: row.paid_to,
+         receipt_number: row.receipt_number,
+         payment_method: row.payment_method,
+         mileage_at_expense: row.mileage_at_expense,
+         created_at: row.created_at,
+         updated_at: row.updated_at,
+      }));
+
       const response = NextResponse.json(
          {
             message: "Sign in successful",
@@ -122,6 +161,7 @@ export async function POST(req: Request) {
                token,
                vehicles,
                service_records,
+               expense_records,
             },
          },
          { status: 200 }
