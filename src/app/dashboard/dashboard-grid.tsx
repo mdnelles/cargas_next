@@ -58,10 +58,10 @@ const dashboardItems = [
       href: "/dashboard/purchase-records",
    },
    { name: "Sold Records", icon: TrendingUp, href: "/dashboard/sold-records" },
-   { name: "Vehicle Records", icon: Car, href: "/dashboard/vehicle-records" },
-   { name: "Browse Records", icon: Search, href: "/dashboard/browse-records" },
-   { name: "Predictions", icon: BarChart, href: "/dashboard/predictions" },
-   { name: "Settings", icon: Settings, href: "/dashboard/settings" },
+   // { name: "Vehicle Records", icon: Car, href: "/dashboard/vehicle-records" },
+   // { name: "Browse Records", icon: Search, href: "/dashboard/browse-records" },
+   // { name: "Predictions", icon: BarChart, href: "/dashboard/predictions" },
+   // { name: "Settings", icon: Settings, href: "/dashboard/settings" },
 ];
 
 export default function DashboardGrid() {

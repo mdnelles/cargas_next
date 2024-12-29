@@ -150,6 +150,72 @@ export async function POST(req: Request) {
          updated_at: row.updated_at,
       }));
 
+      // Fetch trip records
+      const [rows5]: any[] = await pool.query(
+         `SELECT 
+            id,
+            user_id,
+            vehicle_id,
+            start_date,
+            end_date,
+            start_location,
+            end_location,
+            distance_traveled,
+            fuel_consumed,
+            cost,
+            notes,
+            trip_type,
+            created_at,
+            updated_at
+         FROM trip_records
+         WHERE user_id = ?`,
+         [user.id]
+      );
+
+      const trip_records = rows5.map((row: any) => ({
+         id: row.id,
+         user_id: row.user_id,
+         vehicle_id: row.vehicle_id,
+         start_date: row.start_date,
+         end_date: row.end_date,
+         start_location: row.start_location,
+         end_location: row.end_location,
+         distance_traveled: row.distance_traveled,
+         fuel_consumed: row.fuel_consumed,
+         cost: row.cost,
+         notes: row.notes,
+         trip_type: row.trip_type,
+         created_at: row.created_at,
+         updated_at: row.updated_at,
+      }));
+
+      // Fetch note records
+      const [rows6]: any[] = await pool.query(
+         `SELECT 
+            id,
+            user_id,
+            vehicle_id,
+            note_date,
+            title,
+            content,
+            created_at,
+            updated_at
+         FROM note_records
+         WHERE user_id = ?`,
+         [user.id]
+      );
+
+      const note_records = rows6.map((row: any) => ({
+         id: row.id,
+         user_id: row.user_id,
+         vehicle_id: row.vehicle_id,
+         note_date: row.note_date,
+         title: row.title,
+         content: row.content,
+         created_at: row.created_at,
+         updated_at: row.updated_at,
+      }));
+
       const response = NextResponse.json(
          {
             message: "Sign in successful",
@@ -162,6 +228,8 @@ export async function POST(req: Request) {
                vehicles,
                service_records,
                expense_records,
+               trip_records,
+               note_records, // Added note records here
             },
          },
          { status: 200 }
