@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -58,6 +59,7 @@ export default function AddServiceRecord({
       service_notes: "",
       serviced_by: "",
    });
+   const [isLoading, setIsLoading] = useState(false);
 
    const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -374,7 +376,16 @@ export default function AddServiceRecord({
                      </div>
                   </>
                )}
-               <Button type='submit'>Add Service Record</Button>
+               <Button type='submit' disabled={isLoading}>
+                  {isLoading ? (
+                     <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Adding Note...
+                     </>
+                  ) : (
+                     "Add Note Record"
+                  )}
+               </Button>
             </form>
          </DialogContent>
       </Dialog>

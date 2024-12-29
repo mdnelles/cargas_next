@@ -19,6 +19,7 @@ import {
    DialogTitle,
    DialogDescription,
 } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
 interface AddTripRecordProps {
    vehicleId: number;
@@ -46,6 +47,7 @@ export default function AddTripRecord({
       trip_type: "",
       notes: "",
    });
+   const [isLoading, setIsLoading] = useState(false);
 
    const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -56,37 +58,44 @@ export default function AddTripRecord({
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      const response = await fetch("/api/trip-records", {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({
-            ...formData,
-            vehicle_id: vehicleId,
-            user_id: userId,
-         }),
-      });
+      setIsLoading(true);
+      try {
+         const response = await fetch("/api/trip-records", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+               ...formData,
+               vehicle_id: vehicleId,
+               user_id: userId,
+            }),
+         });
 
-      if (response.ok) {
-         const responseData = await response.json();
-         const newTripRecord = {
-            id: responseData.id,
-            user_id: userId,
-            vehicle_id: vehicleId,
-            ...formData,
-         };
+         if (response.ok) {
+            const responseData = await response.json();
+            const newTripRecord = {
+               id: responseData.id,
+               user_id: userId,
+               vehicle_id: vehicleId,
+               ...formData,
+            };
 
-         const user = JSON.parse(localStorage.getItem("user") || "{}");
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-         if (!user["trip_records"]) {
-            user["trip_records"] = [];
+            if (!user["trip_records"]) {
+               user["trip_records"] = [];
+            }
+
+            user["trip_records"].push(newTripRecord);
+            localStorage.setItem("user", JSON.stringify(user));
+            setRender(!render);
+            onClose();
+         } else {
+            console.error("Failed to add trip record");
          }
-
-         user["trip_records"].push(newTripRecord);
-         localStorage.setItem("user", JSON.stringify(user));
-         setRender(!render);
-         onClose();
-      } else {
-         console.error("Failed to add trip record");
+      } catch (error) {
+         console.error("Error adding trip record:", error);
+      } finally {
+         setIsLoading(false);
       }
    };
 
@@ -205,7 +214,16 @@ export default function AddTripRecord({
                      onChange={handleChange}
                   />
                </div>
-               <Button type='submit'>Add Trip Record</Button>
+               <Button type='submit' disabled={isLoading}>
+                  {isLoading ? (
+                     <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Adding Trip Record...
+                     </>
+                  ) : (
+                     "Add Trip Record"
+                  )}
+               </Button>
             </form>
          </DialogContent>
       </Dialog>

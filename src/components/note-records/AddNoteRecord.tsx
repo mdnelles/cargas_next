@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
    Dialog,
@@ -33,7 +34,7 @@ export default function AddNoteRecord({
       title: "",
       content: "",
    });
-
+   const [isLoading, setIsLoading] = useState(false);
    const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
    ) => {
@@ -118,7 +119,16 @@ export default function AddNoteRecord({
                      required
                   />
                </div>
-               <Button type='submit'>Add Note Record</Button>
+               <Button type='submit' disabled={isLoading}>
+                  {isLoading ? (
+                     <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Adding Note...
+                     </>
+                  ) : (
+                     "Add Note Record"
+                  )}
+               </Button>
             </form>
          </DialogContent>
       </Dialog>

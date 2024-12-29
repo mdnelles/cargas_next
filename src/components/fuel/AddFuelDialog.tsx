@@ -20,6 +20,7 @@ import {
    DialogTrigger,
 } from "@/components/ui/dialog";
 import { FuelUp } from "@/types/fuelUp";
+import { Loader2 } from "lucide-react";
 
 interface AddFuelUpFormProps {
    onAddFuelUp: (newFuelUp: FuelUp) => void;
@@ -42,6 +43,7 @@ export function AddFuelUpForm({ onAddFuelUp }: AddFuelUpFormProps) {
       paymentType: "",
       kilometers: "",
    });
+   const [isLoading, setIsLoading] = useState(false);
 
    useEffect(() => {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -73,6 +75,7 @@ export function AddFuelUpForm({ onAddFuelUp }: AddFuelUpFormProps) {
 
    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      setIsLoading(true);
       try {
          const token = JSON.parse(localStorage.getItem("user") || "{}").token;
          const response = await fetch("/api/fuel-ups", {
@@ -114,13 +117,15 @@ export function AddFuelUpForm({ onAddFuelUp }: AddFuelUpFormProps) {
          });
       } catch (error) {
          console.error("Error adding fuel-up record:", error);
+      } finally {
+         setIsLoading(false);
       }
    };
 
    return (
       <Dialog open={open} onOpenChange={setOpen}>
          <DialogTrigger asChild>
-            <Button className='w-full mb-6'>Add a Record</Button>
+            <Button className='mb-6'>Add a Fuel Up Record</Button>
          </DialogTrigger>
          <DialogContent className='sm:max-w-[425px]'>
             <DialogHeader>
@@ -298,9 +303,16 @@ export function AddFuelUpForm({ onAddFuelUp }: AddFuelUpFormProps) {
                   <Button
                      type='submit'
                      className='w-full'
-                     disabled={vehicles.length === 0}
+                     disabled={vehicles.length === 0 || isLoading}
                   >
-                     Save
+                     {isLoading ? (
+                        <>
+                           <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                           Saving...
+                        </>
+                     ) : (
+                        "Save"
+                     )}
                   </Button>
                </form>
             </div>

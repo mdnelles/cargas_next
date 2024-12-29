@@ -19,6 +19,7 @@ import {
    DialogTitle,
    DialogDescription,
 } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
 interface AddExpenseRecordProps {
    vehicleId: number;
@@ -46,6 +47,8 @@ export default function AddExpenseRecord({
       mileage_at_expense: "",
    });
 
+   const [isLoading, setIsLoading] = useState(false);
+
    const handleChange = (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
    ) => {
@@ -55,37 +58,44 @@ export default function AddExpenseRecord({
 
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      const response = await fetch("/api/expense-records", {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify({
-            ...formData,
-            vehicle_id: vehicleId,
-            user_id: userId,
-         }),
-      });
+      setIsLoading(true);
+      try {
+         const response = await fetch("/api/expense-records", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+               ...formData,
+               vehicle_id: vehicleId,
+               user_id: userId,
+            }),
+         });
 
-      if (response.ok) {
-         const responseData = await response.json();
-         const newExpenseRecord = {
-            id: responseData.id,
-            user_id: userId,
-            vehicle_id: vehicleId,
-            ...formData,
-         };
+         if (response.ok) {
+            const responseData = await response.json();
+            const newExpenseRecord = {
+               id: responseData.id,
+               user_id: userId,
+               vehicle_id: vehicleId,
+               ...formData,
+            };
 
-         const user = JSON.parse(localStorage.getItem("user") || "{}");
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-         if (!user["expense_records"]) {
-            user["expense_records"] = [];
+            if (!user["expense_records"]) {
+               user["expense_records"] = [];
+            }
+
+            user["expense_records"].push(newExpenseRecord);
+            localStorage.setItem("user", JSON.stringify(user));
+            setRender(!render);
+            onClose();
+         } else {
+            console.error("Failed to add expense record");
          }
-
-         user["expense_records"].push(newExpenseRecord);
-         localStorage.setItem("user", JSON.stringify(user));
-         setRender(!render);
-         onClose();
-      } else {
-         console.error("Failed to add expense record");
+      } catch (error) {
+         console.error("Error adding expense record:", error);
+      } finally {
+         setIsLoading(false);
       }
    };
 
@@ -195,7 +205,16 @@ export default function AddExpenseRecord({
                      onChange={handleChange}
                   />
                </div>
-               <Button type='submit'>Add Expense Record</Button>
+               <Button type='submit' disabled={isLoading}>
+                  {isLoading ? (
+                     <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Adding Expense...
+                     </>
+                  ) : (
+                     "Add Expense Record"
+                  )}
+               </Button>
             </form>
          </DialogContent>
       </Dialog>
