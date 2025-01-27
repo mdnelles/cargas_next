@@ -57,7 +57,7 @@ const dashboardItems = [
       icon: ShoppingCart,
       href: "/dashboard/purchase-records",
    },
-   { name: "Sold Records", icon: TrendingUp, href: "/dashboard/sold-records" },
+   { name: "Sold Records", icon: TrendingUp, href: "/dashboard/sale-records" },
    // { name: "Vehicle Records", icon: Car, href: "/dashboard/vehicle-records" },
    // { name: "Browse Records", icon: Search, href: "/dashboard/browse-records" },
    // { name: "Predictions", icon: BarChart, href: "/dashboard/predictions" },

@@ -16,7 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardTemplate from "../dashboard-template";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
-import UpdateUserVehicles from "@/components/UpdateUserVehicles";
 import ClientMyVehicles from "../my-vehicles/ClientMyVehicles";
 
 interface UserInfo {
